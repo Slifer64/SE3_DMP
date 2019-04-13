@@ -1,0 +1,8 @@
+prefix=/usr/local
+
+Name: lwr4p
+Description: Description of lwr4p
+Version: 1.0.0
+Cflags: -I/usr/local/include
+Libs: -L/usr/local/lib 
+Requires: 

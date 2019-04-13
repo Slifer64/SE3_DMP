@@ -1,0 +1,8 @@
+prefix=/usr/local
+
+Name: ati_sensor
+Description: Description of ati_sensor
+Version: 1.1.0
+Cflags: -I/usr/local/include
+Libs: -L/usr/local/lib -lati_sensor
+Requires: geometry_msgs std_msgs

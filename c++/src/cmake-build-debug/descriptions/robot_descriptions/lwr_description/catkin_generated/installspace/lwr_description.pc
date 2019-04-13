@@ -1,0 +1,8 @@
+prefix=/usr/local
+
+Name: lwr_description
+Description: Description of lwr_description
+Version: 0.0.0
+Cflags: 
+Libs: -L/usr/local/lib 
+Requires: 

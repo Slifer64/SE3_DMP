@@ -1,0 +1,8 @@
+prefix=/usr/local
+
+Name: kinect_description
+Description: Description of kinect_description
+Version: 1.0.0
+Cflags: 
+Libs: -L/usr/local/lib 
+Requires: 

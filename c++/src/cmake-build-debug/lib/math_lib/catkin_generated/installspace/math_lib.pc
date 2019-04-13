@@ -1,0 +1,8 @@
+prefix=/usr/local
+
+Name: math_lib
+Description: Description of math_lib
+Version: 0.0.1
+Cflags: -I/usr/local/include
+Libs: -L/usr/local/lib 
+Requires: roscpp geometry_msgs
