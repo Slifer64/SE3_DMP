@@ -14,6 +14,9 @@
 namespace as64_
 {
 
+namespace dmp_
+{
+
 /** \brief Performs kernel based LS (Least Squares)
  * Performs least squares learning on the input data and returns the learned weights.
  * N denotes the number of data points.
@@ -32,6 +35,7 @@ namespace as64_
  */
 arma::mat leastSquares(const arma::mat &Psi, const arma::mat &X, const arma::rowvec &Fd, double zero_tol=0.0);
 
+} // namespace dmp_
 
 } // namespace as64_
 

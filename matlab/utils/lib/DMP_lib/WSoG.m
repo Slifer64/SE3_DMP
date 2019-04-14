@@ -15,29 +15,29 @@ classdef WSoG < handle
     properties
         N_kernels % number of kernels (basis functions)
 
-        shapeAttrGatingFun % pointer to gating function for the shape attractor
-        
-        w % N_kernelsx1 vector with the weights of the DMP
-        c % N_kernelsx1 vector with the kernel centers of the DMP
-        h % N_kernelsx1 vector with the kernel stds of the DMP
+        w % N_kernels x 1 vector with the kernels' weights
+        c % N_kernels x 1 vector with the kernels' centers
+        h % N_kernels x 1 vector with the kernels' inverse width
 
-        zero_tol % tolerance value used to avoid divisions with very small numbers
+        shapeAttrGatingFun % Pointer to gating function that ensures the output of WSoG decays to zero at the end (i.e. when the phase variable reaches 1.0)
         
-        kernel_std_scaling % scales the std of the kernel function
-
-        setVar % array with function pointers  
+        zero_tol % small value used to avoid divisions with very small numbers
+        
     end
 
     methods
-        %% DMP constructor.
-        %  @param[in] N_kernels: the number of kernels
+        %% Weighted Sum of Gaussians constructor.
+        %  @param[in] N_kernels: The number of kernels.
+        %  @param[in] shapeAttrGatingFun: Pointer to gating function that ensures the output of WSoG decays
+        %                                 to zero at the end (i.e. when the phase variable reaches 1.0).
+        %  @param[in] kernel_std_scaling: Scaling of the kernel's std. (optional, default=1.0)
+        %
         function this = WSoG(N_kernels, shapeAttrGatingFun, kernel_std_scaling) %, N_kernels, s_gat_ptr
 
             if (nargin < 3), kernel_std_scaling = 1.0; end
             
             this.N_kernels = N_kernels;
             this.shapeAttrGatingFun = shapeAttrGatingFun;
-            this.kernel_std_scaling = kernel_std_scaling;
             
             this.zero_tol = 1e-30; %realmin;
 
@@ -48,7 +48,9 @@ classdef WSoG < handle
             
         end
 
-        
+        %% Returns the number of kernels.
+        %  @return The number of kernels.
+        %
         function n_ker = getNumOfKernels(this)
             
             n_ker = length(this.w);
@@ -57,8 +59,11 @@ classdef WSoG < handle
         
         
         %% Trains the WSoG.
-        %  @param[in] Time: Row vector with the timestamps of the training data points.
-        %  @param[in] Fd_data: Row vector with the desired potition.
+        %  @param[in] train_method: The training method (see dmp_::TRAIN_METHOD enum).
+        %  @param[in] x: Row vector with the timestamps of the training data points. Must take values in [0 1].
+        %  @param[in] Fd: Row vector with the desired values.
+        %  @param[in] train_error: Optinal pointer to return the training error as norm(F-Fd)/n_data.
+        %
         function [train_error, F] = train(this, train_method, x, Fd)
 
             n_data = length(x);
@@ -75,19 +80,21 @@ classdef WSoG < handle
             else, error('[WSoG::train]: Unsopported training method...');
             end
 
-            F = zeros(size(Fd));
-            for i=1:size(F,2)
-                F(i) = this.output(x(i));
+            if (nargout > 0)
+                F = zeros(size(Fd));
+                for i=1:size(F,2)
+                    F(i) = this.output(x(i));
+                end
+                train_error = norm(F-Fd)/length(F);
             end
-
-            train_error = norm(F-Fd)/length(F);
 
         end
 
         
-        %% Returns a column vector with the values of the kernel functions of the WSoG.
-        %  @param[in] x: phase variable
-        %  @param[out] psi: column vector with the values of the kernel functions of the DMP
+        %% Returns a column vector with the values of the kernel functions.
+        %  @param[in] x: The phase variable.
+        %  @return: Column vector with the values of the kernel functions.
+        %
         function psi = kernelFunction(this,x)
 
             n = length(x);
@@ -100,9 +107,10 @@ classdef WSoG < handle
         end
          
         
-        %% Returns the forcing term of the WSoG.
+        %% Returns the normalized weighted sum of the Gaussians for the given phase variable (time instant).
         %  @param[in] x: The phase variable.
-        %  @param[out] f: The normalized weighted sum of Gaussians.
+        %  @param[out] f: The normalized weighted sum of the Gaussians.
+        %
         function f = output(this,x)
 
             Psi = this.kernelFunction(x);

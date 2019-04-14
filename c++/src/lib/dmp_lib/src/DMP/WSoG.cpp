@@ -1,115 +1,72 @@
-%% WSoG class
-%  Weighted sum of Guassians.
-%
+#include <dmp_lib/DMP/WSoG.h>
 
-classdef WSoG < handle
-    
-    properties (Constant)
-          
-          %% enum TRAIN_METHOD
-          LWR = 201;
-          LS = 203;
+namespace as64_
+{
 
-    end
-       
-    properties
-        N_kernels % number of kernels (basis functions)
+namespace dmp_
+{
 
-        shapeAttrGatingFun % pointer to gating function for the shape attractor
-        
-        w % N_kernelsx1 vector with the weights of the DMP
-        c % N_kernelsx1 vector with the kernel centers of the DMP
-        h % N_kernelsx1 vector with the kernel stds of the DMP
+WSoG::WSoG(int N_kernels, std::function<double(double)> shapeAttrGatingFun, double kernel_std_scaling)
+{
+  this->N_kernels = N_kernels;
+  this->shapeAttrGatingFun = shapeAttrGatingFun;
 
-        zero_tol % tolerance value used to avoid divisions with very small numbers
-        
-        kernel_std_scaling % scales the std of the kernel function
+  this->zero_tol = 1e-30; // realmin;
 
-        setVar % array with function pointers  
-    end
+  this->w = arma::vec().zeros(N_kernels);
+  this->c = arma::linspace<arma::vec>(0,N_kernels-1, N_kernels)/(N_kernels-1);
+  this->h.resize(N_kernels);
+  for (int i=0; i<N_kernels-1; i++) this->h(i) = 1 / std::pow(kernel_std_scaling*(this->c(i+1)-this->c(i)),2);
+  this->h(N_kernels-1) = this->h(N_kernels-2);
+}
 
-    methods
-        %% DMP constructor.
-        %  @param[in] N_kernels: the number of kernels
-        function this = WSoG(N_kernels, shapeAttrGatingFun, kernel_std_scaling) %, N_kernels, s_gat_ptr
 
-            if (nargin < 3), kernel_std_scaling = 1.0; end
-            
-            this.N_kernels = N_kernels;
-            this.shapeAttrGatingFun = shapeAttrGatingFun;
-            this.kernel_std_scaling = kernel_std_scaling;
-            
-            this.zero_tol = 1e-30; %realmin;
+int WSoG::getNumOfKernels() const
+{
+  return this->w.size();
+}
 
-            this.w = zeros(this.N_kernels,1);
-            this.c = ((1:this.N_kernels)-1)'/(this.N_kernels-1);
-            this.h = 1./(kernel_std_scaling*(this.c(2:end)-this.c(1:end-1))).^2;
-            this.h = [this.h; this.h(end)];
-            
-        end
 
-        
-        function n_ker = getNumOfKernels(this)
-            
-            n_ker = length(this.w);
-            
-        end
-        
-        
-        %% Trains the WSoG.
-        %  @param[in] Time: Row vector with the timestamps of the training data points.
-        %  @param[in] Fd_data: Row vector with the desired potition.
-        function [train_error, F] = train(this, train_method, x, Fd)
+void WSoG::train(dmp_::TRAIN_METHOD train_method, const arma::rowvec &x, const arma::rowvec &Fd, double *train_error)
+{
+  int n_data = x.size();
 
-            n_data = length(x);
+  arma::rowvec s(n_data);
+  arma::mat Psi(this->N_kernels, n_data);
+  for (int j=0; j<n_data; j++)
+  {
+    s(j) = this->shapeAttrGatingFun(x(j));
+    Psi.col(j) = this->kernelFunction(x(j));
+  }
 
-            s = zeros(1, n_data);
-            Psi = zeros(this.N_kernels, n_data);
-            for i=1:n_data
-                s(i) = this.shapeAttrGatingFun(x(i));
-                Psi(:,i) = this.kernelFunction(x(i));
-            end
+  if (train_method == dmp_::LWR) this->w = dmp_::localWeightRegress(Psi, s, Fd, this->zero_tol);
+  else if (train_method == dmp_::LS) this->w = dmp_::leastSquares(Psi, s, Fd, this->zero_tol);
+  else throw std::runtime_error("[WSoG::train]: Unsopported training method...");
 
-            if (train_method == WSoG.LWR), this.w = LWR(Psi, s, Fd, this.zero_tol);
-            elseif (train_method == WSoG.LS), this.w = leastSquares(Psi, s, Fd, this.zero_tol);
-            else, error('[WSoG::train]: Unsopported training method...');
-            end
+  if (train_error)
+  {
+    arma::rowvec F(n_data);
+    for (int j=0; j<n_data; j++) F(j) = this->output(x(j));
+    *train_error = arma::norm(F-Fd)/n_data;
+  }
 
-            F = zeros(size(Fd));
-            for i=1:size(F,2)
-                F(i) = this.output(x(i));
-            end
+};
 
-            train_error = norm(F-Fd)/length(F);
 
-        end
+arma::vec WSoG::kernelFunction(double x) const
+{
+  arma::vec psi = arma::exp(-this->h % (arma::pow(x-this->c,2)));
+  return psi;
+}
 
-        
-        %% Returns a column vector with the values of the kernel functions of the WSoG.
-        %  @param[in] x: phase variable
-        %  @param[out] psi: column vector with the values of the kernel functions of the DMP
-        function psi = kernelFunction(this,x)
 
-            n = length(x);
-            psi = zeros(this.N_kernels, n);
+double WSoG::output(double x) const
+{
+  arma::vec psi = this->kernelFunction(x);
+  double f = this->shapeAttrGatingFun(x) * dot(psi,this->w) / (sum(psi)+this->zero_tol); // add 'zero_tol' to avoid numerical issues
+  return f;
+}
 
-            for j=1:n
-                psi(:,j) = exp(-this.h.*((x(j)-this.c).^2));
-            end 
+} // namespace dmp_
 
-        end
-         
-        
-        %% Returns the forcing term of the WSoG.
-        %  @param[in] x: The phase variable.
-        %  @param[out] f: The normalized weighted sum of Gaussians.
-        function f = output(this,x)
-
-            Psi = this.kernelFunction(x);
-    
-            f = this.shapeAttrGatingFun(x) * dot(Psi,this.w) / (sum(Psi)+this.zero_tol); % add 'zero_tol' to avoid numerical issues
-
-        end
-
-    end
-end
+} // namespace as64_

@@ -18,7 +18,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_library(dmp-lib
+add_library(${PROJECT_NAME}
   src/CanonicalClock/CanonicalClock.cpp
 
   src/GatingFunction/GatingFunction.cpp
@@ -30,14 +30,17 @@ add_library(dmp-lib
   src/trainMethods/LWR.cpp
 
   src/DMP/DMP.cpp
+
+  src/DMP/WSoG.cpp
+  src/DMP/DMP_orient.cpp
 )
 
-add_dependencies(dmp-lib
+add_dependencies(${PROJECT_NAME}
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
   ${catkin_EXPORTED_TARGETS}
 )
 
-target_link_libraries(dmp-lib
+target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
   armadillo
 )

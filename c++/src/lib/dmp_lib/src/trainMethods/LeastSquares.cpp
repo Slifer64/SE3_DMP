@@ -6,6 +6,9 @@
 namespace as64_
 {
 
+namespace dmp_
+{
+
 arma::mat leastSquares(const arma::mat &Psi, const arma::mat &X, const arma::rowvec &Fd, double zero_tol)
 {
   int N_kernels = Psi.n_rows;
@@ -29,5 +32,6 @@ arma::mat leastSquares(const arma::mat &Psi, const arma::mat &X, const arma::row
   return w;
 }
 
+} // namespace dmp_
 
 } // namespace as64_

@@ -282,7 +282,7 @@ classdef DMP < handle % : public DMP_
         
         
         %% Sets the time scale of the DMP.
-        function tau = setTau(this, tau)
+        function setTau(this, tau)
 
             this.can_clock_ptr.setTau(tau);
 

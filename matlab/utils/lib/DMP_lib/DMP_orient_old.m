@@ -72,7 +72,7 @@ classdef DMP_orient_old < handle % : public DMP_
         %  @param[out] dy: derivative of the \a y state of the this.
         %  @param[out] dz: derivative of the \a z state of the this.
         %  @param[out] dx: derivative of the phase variable of the this.
-        function [dvRot, dx] = getStatesDot(this, x, Q, vRot, Q0, Qg, y_c, z_c)
+        function dvRot = getRotAccel(this, x, Q, vRot, Q0, Qg, y_c, z_c)
             
             if (nargin < 7), y_c = zeros(3,1); end
             if (nargin < 8), z_c = zeros(3,1); end

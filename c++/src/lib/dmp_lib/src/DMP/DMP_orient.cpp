@@ -1,239 +1,199 @@
-%% DMP_orient class
-%  For encoding Cartesian Orientation.
-%
+#include <dmp_lib/DMP/DMP_orient.h>
+
+namespace as64_
+{
+
+namespace dmp_
+{
+
+  arma::vec quatLog(const arma::vec &quat, double zero_tol=1e-16)
+  {
+    arma::vec e = quat.subvec(1,3);
+    double n = quat(0);
+
+    if (n > 1) n = 1;
+    if (n < -1) n = -1;
+
+    arma::vec omega(3);
+    double e_norm = arma::norm(e);
+
+    if (e_norm > zero_tol) omega = 2*std::atan2(e_norm,n)*e/e_norm;
+    else omega = arma::vec().zeros(3);
+
+    return omega;
+  }
+
+  arma::vec quatExp(const arma::vec &v_rot, double zero_tol=1e-16)
+  {
+    arma::vec quat(4);
+    double norm_v_rot = arma::norm(v_rot);
+    double theta = norm_v_rot;
+
+   if (norm_v_rot > zero_tol)
+   {
+      quat(0) = std::cos(theta/2);
+      quat.subvec(1,3) = std::sin(theta/2)*v_rot/norm_v_rot;
+    }
+    else{
+      quat << 1 << 0 << 0 << 0;
+    }
+
+    return quat;
+  }
+
+  arma::vec quatProd(const arma::vec &quat1, const arma::vec &quat2)
+  {
+    arma::vec quat12(4);
+
+    double n1 = quat1(0);
+    arma::vec e1 = quat1.subvec(1,3);
+
+    double n2 = quat2(0);
+    arma::vec e2 = quat2.subvec(1,3);
+
+    quat12(0) = n1*n2 - arma::dot(e1,e2);
+    quat12.subvec(1,3) = n1*e2 + n2*e1 + arma::cross(e1,e2);
+
+    return quat12;
+  }
+
+  arma::vec quatInv(const arma::vec &quat)
+  {
+    arma::vec quatI(4);
+
+    quatI(0) = quat(0);
+    quatI.subvec(1,3) = - quat.subvec(1,3);
+
+    return quatI;
+  }
+
+} // namespace dmp_
 
 
-classdef DMP_orient < handle
-    
-    properties (Constant)
-        
-          %% enum ARGUMENT
-          
-          %% enum TRAIN_METHOD
-          LWR = 201;
-          LS = 203;
+DMP_orient::DMP_orient(const arma::Mat<int> &N_kernels, double a_z, double b_z, std::shared_ptr<CanonicalClock> &can_clock_ptr,
+  std::shared_ptr<GatingFunction> &shape_attr_gating_ptr)
+{
+  this->zero_tol = 1e-30; // realmin;
+  this->a_z = a_z;
+  this->b_z = b_z;
+  this->can_clock_ptr = can_clock_ptr;
+  this->shape_attr_gating_ptr = shape_attr_gating_ptr;
 
-    end
-       
-    properties
-        
-        Qgd
-        Q0d
-        tau_d
-        
-        eq_f
-        vRot_f
-        dvRot_f
-        
-        N_kernels % number of kernels (basis functions)
+  std::function<double(double)> shapeAttrGatFun_ptr =
+  std::bind(static_cast<double(GatingFunction::*)(double)const>(&GatingFunction::getOutput),
+            shape_attr_gating_ptr.get(), std::placeholders::_1);
 
-        a_z % parameter 'a_z' relating to the spring-damper system
-        b_z % parameter 'b_z' relating to the spring-damper system
+  arma::Mat<int> n_ker(3,3);
+  if (N_kernels.n_cols==1)
+  {
+    for (int i=0; i<3; i++) n_ker(i,0)=n_ker(i,1)=n_ker(i,2)=N_kernels(i);
+  }
 
-        can_clock_ptr % handle (pointer) to the canonical clock
-        shape_attr_gating_ptr % pointer to gating function for the shape attractor
+  this->eq_f.resize(3);
+  this->vRot_f.resize(3);
+  this->dvRot_f.resize(3);
+  for (int i=0; i<3; i++)
+  {
+      this->eq_f[i].reset(new dmp_::WSoG(n_ker(0,i), shapeAttrGatFun_ptr));
+      this->vRot_f[i].reset(new dmp_::WSoG(n_ker(1,i), shapeAttrGatFun_ptr));
+      this->dvRot_f[i].reset(new dmp_::WSoG(n_ker(2,i), shapeAttrGatFun_ptr));
+  }
+}
 
-        zero_tol % tolerance value used to avoid divisions with very small numbers
 
-        type % the DMP type
-        
-        setVar % array with function pointers  
+void DMP_orient::train(dmp_::TRAIN_METHOD train_method, const arma::rowvec &Time, const arma::mat &Qd_data,
+                      const arma::mat &vRotd_data, const arma::mat &dvRotd_data, arma::mat *train_err)
+{
+    int n_data = Time.size();
+    int i_end = n_data-1;
 
-    end
+    this->Q0d = Qd_data.col(0);
+    this->Qgd = Qd_data.col(i_end);
+    this->log_Qgd_invQ0d = dmp_::quatLog( dmp_::quatProd(this->Qgd, dmp_::quatInv(this->Q0d) ) );
 
-    methods
-        %% DMP constructor.
-        %  @param[in] N_kernels: the number of kernels
-        %  @param[in] a_z: Parameter 'a_z' relating to the spring-damper system.
-        %  @param[in] b_z: Parameter 'b_z' relating to the spring-damper system.
-        %  @param[in] can_clock_ptr: Pointer to a DMP canonical system object.
-        function this = DMP_orient(a_z, b_z, N_kernels, can_clock_ptr, shape_attr_gating_ptr)
+    arma::mat eqd(3, n_data);
+    for (int j=0; j<n_data; j++) eqd.col(j) = dmp_::quatLog(dmp_::quatProd(Qd_data.col(j),dmp_::quatInv(this->Qgd)));
 
-            this.zero_tol = 1e-30; %realmin;
-            this.a_z = a_z;
-            this.b_z = b_z;
-            this.N_kernels = N_kernels;
-            this.can_clock_ptr = can_clock_ptr;
-            this.shape_attr_gating_ptr = shape_attr_gating_ptr;
-            
-            shapeAttrGatFun_ptr = @(x)getOutput(this.shape_attr_gating_ptr,x);
-            for i=1:3
-                this.eq_f{i} = WSoG(this.N_kernels(1,i), shapeAttrGatFun_ptr);
-                this.vRot_f{i} = WSoG(this.N_kernels(2,i), shapeAttrGatFun_ptr);
-                this.dvRot_f{i} = WSoG(this.N_kernels(3,i), shapeAttrGatFun_ptr);
-            end
+    double tau = Time(i_end);
+    this->tau_d = tau;
+    this->setTau(tau);
 
-        end
-        
-        
-        %% Trains the DMP_orient.
-        %  @param[in] Time: Row vector with the timestamps of the training data points.
-        %  @param[in] yd_data: Row vector with the desired potition.
-        function [train_err] = train(this, train_method, Time, Qd_data, vRotd_data, dvRotd_data)
+    arma::rowvec x(n_data);
+    for (int j=0; j<n_data; j++) x(j) = this->phase(Time(j));
 
-            n_data = length(Time);
-            
-            eqd = zeros(3, n_data);
-            Qgd = Qd_data(:,end);
-            this.Qgd = Qgd;
-            this.Q0d = Qd_data(:,1);
-            for j=1:n_data, eqd(:,j) = this.quatLog(this.quatProd(Qd_data(:,j),this.quatInv(Qgd))); end
+    if (train_err)
+    {
+      train_err->resize(3,3);
+      for (int i=0; i<3; i++)
+      {
+          this->eq_f[i]->train(train_method, x, eqd.row(i), &(train_err->at(0,i)));
+          this->vRot_f[i]->train(train_method, x, vRotd_data.row(i), &(train_err->at(1,i)));
+          this->dvRot_f[i]->train(train_method, x, dvRotd_data.row(i), &(train_err->at(2,i)));
+      }
+    }
+    else
+    {
+      for (int i=0; i<3; i++)
+      {
+          this->eq_f[i]->train(train_method, x, eqd.row(i));
+          this->vRot_f[i]->train(train_method, x, vRotd_data.row(i));
+          this->dvRot_f[i]->train(train_method, x, dvRotd_data.row(i));
+      }
+    }
+}
 
-            tau = Time(end);
-            this.tau_d = tau;
-            this.setTau(tau);
-    
-            x = this.phase(Time);
-            
-            if (train_method == DMP_orient.LWR), wsog_train_method = WSoG.LWR;
-            elseif (train_method == DMP_orient.LS), wsog_train_method = WSoG.LS;  
-            else, error('[DMP_orient::train]: Unsopported training method...');
-            end
-                
-            train_err = zeros(3,3);
-            for i=1:3
-                train_err(1,i) = this.eq_f{i}.train(wsog_train_method, x, eqd(i,:));
-                train_err(2,i) = this.vRot_f{i}.train(wsog_train_method, x, vRotd_data(i,:));
-                train_err(3,i) = this.dvRot_f{i}.train(wsog_train_method, x, dvRotd_data(i,:));
-            end
 
-        end
-        
-        
-        %% Returns the derivatives of the DMP states.
-        %  @param[in] x: phase variable.
-        %  @param[in] Q: Current orientation as unit quaternion.
-        %  @param[in] vRot: Current rotational velocity.
-        %  @param[in] Q0: initial orientation as unit quaternion.
-        %  @param[in] Qg: Goal orientation as unit quaternion.
-        %  @param[in] y_c: Coupling term.
-        %  @param[out] dvRot: Rotational acceleration.
-        %  @param[out] dx: Derivative of the phase variable.
-        function [dvRot, dx] = getStatesDot(this, x, Q, vRot, Q0, Qg, y_c)
+arma::vec DMP_orient::getRotAccel(double x, const arma::vec &Q, const arma::vec &vRot,
+            const arma::vec &Q0, const arma::vec &Qg, const arma::vec &y_c)
+{
 
-            if (nargin < 7), y_c=zeros(3,1); end
+    arma::vec eqd(3);
+    arma::vec vRotd(3);
+    arma::vec dvRotd(3);
+    for (int i=0; i<3; i++)
+    {
+        eqd(i) = this->eq_f[i]->output(x);
+        vRotd(i) = this->vRot_f[i]->output(x);
+        dvRotd(i) = this->dvRot_f[i]->output(x);
+    }
 
-            dx = this.phaseDot(x);
-            
-            eqd = zeros(3,1);
-            vRotd = zeros(3,1);
-            dvRotd = zeros(3,1);
-            
-            for i=1:3
-                eqd(i) = this.eq_f{i}.output(x);
-                vRotd(i) = this.vRot_f{i}.output(x);
-                dvRotd(i) = this.dvRot_f{i}.output(x);
-            end 
-            
-            Qd = this.quatProd( this.quatExp(eqd), this.Qgd );
-            
-            tau = this.getTau();
-            kt = this.tau_d / tau;
-            ks = this.quatLog( this.quatProd(Qg, this.quatInv(Q0) ) ) ./ this.quatLog( this.quatProd(this.Qgd, this.quatInv(this.Q0d) ) );
-            
-            QQg = this.quatProd(Q,this.quatInv(Qg));
-            inv_exp_QdQgd = this.quatInv( this.quatExp( ks.* this.quatLog( this.quatProd(Qd,this.quatInv(this.Qgd)) ) ) );
-            
-            dvRot = kt^2*ks.*dvRotd - (this.a_z/tau)*(vRot-kt*ks.*vRotd) ...
-                    -(this.a_z*this.b_z/tau^2) * this.quatLog ( this.quatProd(QQg, inv_exp_QdQgd)) + y_c;
-            
-        end
-        
+    arma::vec Qd = dmp_::quatProd( dmp_::quatExp(eqd), this->Qgd );
 
-        %% Returns the time scale of the DMP_orient.
-        %  @param[out] tau: The time scale of the this.
-        function tau = getTau(this)
+    double tau = this->getTau();
+    double kt = this->tau_d / tau;
+    arma::vec ks = dmp_::quatLog( dmp_::quatProd(Qg, dmp_::quatInv(Q0) ) ) / this->log_Qgd_invQ0d;
 
-            tau = this.can_clock_ptr.getTau();
+    arma::vec QQg = dmp_::quatProd(Q,dmp_::quatInv(Qg));
+    arma::vec inv_exp_QdQgd = dmp_::quatInv( dmp_::quatExp( ks % dmp_::quatLog( dmp_::quatProd(Qd,dmp_::quatInv(this->Qgd)) ) ) );
 
-        end
-        
-        
-        %% Sets the time scale of the DMP_orient.
-        function tau = setTau(this, tau)
+    arma::vec dvRot = std::pow(kt,2)*ks%dvRotd - (this->a_z/tau)*(vRot-kt*ks%vRotd)
+            -(this->a_z*this->b_z/std::pow(tau,2)) * dmp_::quatLog ( dmp_::quatProd(QQg, inv_exp_QdQgd)) + y_c;
 
-            this.can_clock_ptr.setTau(tau);
+    return dvRot;
+}
 
-        end
-        
-        
-        %% Returns the phase variable.
-        %  @param[in] t: The time instant.
-        %  @param[out] x: The phase variable for time 't'.
-        function x = phase(this, t)
-            
-            x = this.can_clock_ptr.getPhase(t);
 
-        end
-        
-        
-        %% Returns the derivative of the phase variable.
-        %  @param[in] x: The phase variable.
-        %  @param[out] dx: The derivative of the phase variable.
-        function dx = phaseDot(this, x)
-            
-            dx = this.can_clock_ptr.getPhaseDot(x);
+double DMP_orient::getTau() const
+{
+    return this->can_clock_ptr->getTau();
+}
 
-        end
 
-    end
-    
-    methods (Static)
-        
-        function v_rot = quatLog(Q)
+void DMP_orient::setTau(double tau)
+{
+    this->can_clock_ptr->setTau(tau);
+}
 
-            n = Q(1);
-            e = Q(2:4);
-            norm_e = norm(e);
 
-            if (norm_e > 1e-16)
-                theta = 2*real(atan2(norm_e,n));
-                v_rot = theta*e/norm_e;
-            else
-                v_rot = zeros(size(e));
-            end
+double DMP_orient::phase(double t) const
+{
+    return this->can_clock_ptr->getPhase(t);
+}
 
-        end
-        
-        function Q = quatExp(v_rot)
 
-            norm_v_rot = norm(v_rot);
-            theta = norm_v_rot;
+double DMP_orient::phaseDot(double x) const
+{
+    return this->can_clock_ptr->getPhaseDot(x);
+}
 
-            if (norm_v_rot > 1e-16)
-                Q(1) = cos(theta/2);
-                Q(2:4) = sin(theta/2)*v_rot/norm_v_rot;
-            else
-                Q = [1 0 0 0]';
-            end
-
-        end
-        
-        function Q12 = quatProd(Q1, Q2)
-
-            Q1 = Q1(:);
-            Q2 = Q2(:);
-
-            n1 = Q1(1);
-            e1 = Q1(2:4);
-
-            n2 = Q2(1);
-            e2 = Q2(2:4);
-
-            Q12 = zeros(4,1);
-            Q12(1) = n1*n2 - e1'*e2;
-            Q12(2:4) = n1*e2 + n2*e1 + cross(e1,e2);
-
-        end
-        
-        function invQ = quatInv(Q)
-
-            invQ = zeros(size(Q));
-
-            invQ(1) = Q(1);
-            invQ(2:4) = -Q(2:4);
-
-        end
-
-    end
-end
+} // namespace as64_

@@ -33,6 +33,7 @@ public:
   virtual double getOutput(double x) const = 0;
   virtual arma::rowvec getOutput(const arma::rowvec &x) const = 0;
 
+
   /** \brief Returns the gating function's derivated output for the specified timestamps.
    *  @param[in] x A timestamp or vector of timestamps.
    *  @return u Value or vector of values of the gating function's derivated output.

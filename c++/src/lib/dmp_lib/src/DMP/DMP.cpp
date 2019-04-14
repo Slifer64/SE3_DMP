@@ -30,7 +30,7 @@ namespace as64_
   }
 
 
-  double DMP::train(const std::string &train_method, const arma::rowvec &Time,
+  double DMP::train(dmp_::TRAIN_METHOD train_method, const arma::rowvec &Time,
     const arma::rowvec &yd_data, const arma::rowvec &dyd_data, const arma::rowvec &ddyd_data, bool ret_train_err)
   {
     int n_data = Time.size();
@@ -55,18 +55,9 @@ namespace as64_
       Psi.col(i) = this->kernelFunction(x(i));
     }
 
-    if (train_method.compare("LWR")==0)
-    {
-      this->w = LWR(Psi, s, Fd, this->zero_tol);
-    }
-    else if (train_method.compare("LS")==0)
-    {
-      this->w = leastSquares(Psi, s, Fd, this->zero_tol);
-    }
-    else
-    {
-      throw std::runtime_error(std::string("Unsopported training method \"") + train_method);
-    }
+    if (train_method == dmp_::LWR) this->w = dmp_::localWeightRegress(Psi, s, Fd, this->zero_tol);
+    else if (train_method == dmp_::LS) this->w = dmp_::leastSquares(Psi, s, Fd, this->zero_tol);
+    else throw std::runtime_error("[DMP::train]: Unsopported training method...");
 
     double train_error = -1;
     if (ret_train_err)

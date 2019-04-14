@@ -14,6 +14,9 @@
 namespace as64_
 {
 
+namespace dmp_
+{
+
 /** \brief Locally Weighted Regression
  * Performs locally weighted regression learning on the input data and returns the learned weights.
  * N denotes the number of data points.
@@ -30,8 +33,9 @@ namespace as64_
  * @param[in] zero_tol: Tollerance value to avoid divisions by zero.
  * @return K x N matrix with the learned weights.
  */
-arma::mat LWR(const arma::mat &Psi, const arma::mat &X, const arma::rowvec &Fd, double zero_tol=0.0);
+arma::mat localWeightRegress(const arma::mat &Psi, const arma::mat &X, const arma::rowvec &Fd, double zero_tol=0.0);
 
+} // namespace dmp_
 
 } // namespace as64_
 

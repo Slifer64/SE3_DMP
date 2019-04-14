@@ -10,6 +10,7 @@
 
 #include <dmp_lib/CanonicalClock/CanonicalClock.h>
 #include <dmp_lib/GatingFunction/GatingFunction.h>
+#include <dmp_lib/dmp_defs.h>
 
 namespace as64_
 {
@@ -65,7 +66,7 @@ public:
    *  @param[in] ret_train_err Flag to return the training error (optinal, default = false).
    *  @return The training error (-1 is returned if \a ret_train_err=false)
    */
-  double train(const std::string &train_method, const arma::rowvec &Time, const arma::rowvec &yd_data,
+  double train(dmp_::TRAIN_METHOD train_method, const arma::rowvec &Time, const arma::rowvec &yd_data,
     const arma::rowvec &dyd_data, const arma::rowvec &ddyd_data, bool ret_train_err=false);
 
 

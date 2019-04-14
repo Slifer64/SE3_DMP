@@ -11,22 +11,24 @@ Qd_data = Data.Quat;
 vRotd_data = Data.RotVel;
 dvRotd_data = Data.RotAccel;
 
-Qgd = Qd_data(:,end);
-Pqd_data = zeros(3, size(Qd_data,2));
-for j=1:size(Pqd_data,2)
-    Pqd_data(:,j) = quatLog( quatProd(Qgd, quatInv(Qd_data(:,j))) );
-end
+%% Write data to binary format
+fid = fopen('train_data.bin','w');
+write_mat(Timed, fid, true);
+write_mat(Qd_data, fid, true);
+write_mat(vRotd_data, fid, true);
+write_mat(dvRotd_data, fid, true);
+fclose(fid);
 
 Ts = Timed(2)-Timed(1);
 
 %% initialize DMP
-a_z = 250;
+a_z = 20;
 b_z = a_z/4;
 train_method = DMP_orient.LWR;
 can_clock_ptr = CanonicalClock();
 shape_attr_gat_ptr = SigmoidGatingFunction(1.0, 0.5);
-N_kernels = 2*[30 30 30; 30 30 30; 30 30 30];
-dmp_o = DMP_orient(a_z, b_z, N_kernels, can_clock_ptr, shape_attr_gat_ptr);
+N_kernels = [60; 60; 60];
+dmp_o = DMP_orient(N_kernels, a_z, b_z, can_clock_ptr, shape_attr_gat_ptr);
 
 disp('Orient DMP training...')
 tic
@@ -53,23 +55,29 @@ dt = Ts;
 [Time, Q_data, vRot_data, dvRot_data] = simulateOrientDMP(dmp_o, Q0, Qg, T, dt);
 toc
 
-Pq_data = zeros(3, size(Q_data,2));
-for j=1:size(Pq_data,2)
-    Pq_data(:,j) = quatLog( quatProd(Qg, quatInv(Q_data(:,j))) );
-end
-
 disp('DMP old simulation...');
 tic
 [Time2, Q_data2, vRot_data2, dvRot_data2] = simulateOrientDMP(dmp_o2, Q0, Qg, T, dt);
 toc
 
+
+%% Plot results
+
+Qgd = Qd_data(:,end);
+Pqd_data = zeros(3, size(Qd_data,2));
+for j=1:size(Pqd_data,2)
+    Pqd_data(:,j) = quatLog( quatProd(Qgd, quatInv(Qd_data(:,j))) );
+end
+
+Pq_data = zeros(3, size(Q_data,2));
+for j=1:size(Pq_data,2)
+    Pq_data(:,j) = quatLog( quatProd(Qg, quatInv(Q_data(:,j))) );
+end
+
 Pq_data2 = zeros(3, size(Q_data,2));
 for j=1:size(Pq_data2,2)
     Pq_data2(:,j) = quatLog( quatProd(Qg, quatInv(Q_data2(:,j))) );
 end
-
-
-%% Plot results
 
 line_width = 2.5;
  

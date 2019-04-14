@@ -17,16 +17,15 @@ classdef DMP_orient < handle
        
     properties
         
-        Qgd
-        Q0d
-        tau_d
+        Qgd % Trained target orientation as unit quaternion.
+        Q0d % Trained initial orientation as unit quaternion.
+        log_Qgd_invQ0d % log(Qgd * inv(Q0d)), precalculated
+        tau_d % Trained time-scaling.
         
-        eq_f
-        vRot_f
-        dvRot_f
+        eq_f % 3x1 vector of WSoG producing the desired orientation.
+        vRot_f % 3x1 vector of WSoG producing the desired rotational velocity.
+        dvRot_f % 3x1 vector of WSoG producing the desired rotational acceleration.
         
-        N_kernels % number of kernels (basis functions)
-
         a_z % parameter 'a_z' relating to the spring-damper system
         b_z % parameter 'b_z' relating to the spring-damper system
 
@@ -35,47 +34,58 @@ classdef DMP_orient < handle
 
         zero_tol % tolerance value used to avoid divisions with very small numbers
 
-        type % the DMP type
-
     end
 
     methods
-        %% DMP constructor.
-        %  @param[in] N_kernels: the number of kernels
+        %% DMP_orient constructor.
+        %  @param[in] N_kernels: 3x3 matrix where each row contains the kernels for position,
+        %                       velocity and acceleration and each row for x, y and z coordinate.
+        %                       If 'N_kernels' is a column vector then every coordinate will have the
+        %                       same number of kernels.
         %  @param[in] a_z: Parameter 'a_z' relating to the spring-damper system.
         %  @param[in] b_z: Parameter 'b_z' relating to the spring-damper system.
         %  @param[in] can_clock_ptr: Pointer to a DMP canonical system object.
-        function this = DMP_orient(a_z, b_z, N_kernels, can_clock_ptr, shape_attr_gating_ptr)
+        %  @param[in] shape_attr_gating_ptr: Pointer to a DMP gating function object.
+        %
+        function this = DMP_orient(N_kernels, a_z, b_z, can_clock_ptr, shape_attr_gating_ptr)
 
             this.zero_tol = 1e-30; %realmin;
             this.a_z = a_z;
             this.b_z = b_z;
-            this.N_kernels = N_kernels;
             this.can_clock_ptr = can_clock_ptr;
             this.shape_attr_gating_ptr = shape_attr_gating_ptr;
-            
+
+            if (isscalar(N_kernels)), N_kernels = ones(3,1)*N_kernels; end
+            if (size(N_kernels,2) == 1), N_kernels = repmat(N_kernels,1,3); end
+
             shapeAttrGatFun_ptr = @(x)getOutput(this.shape_attr_gating_ptr,x);
             for i=1:3
-                this.eq_f{i} = WSoG(this.N_kernels(1,i), shapeAttrGatFun_ptr);
-                this.vRot_f{i} = WSoG(this.N_kernels(2,i), shapeAttrGatFun_ptr);
-                this.dvRot_f{i} = WSoG(this.N_kernels(3,i), shapeAttrGatFun_ptr);
+                this.eq_f{i} = WSoG(N_kernels(1,i), shapeAttrGatFun_ptr);
+                this.vRot_f{i} = WSoG(N_kernels(2,i), shapeAttrGatFun_ptr);
+                this.dvRot_f{i} = WSoG(N_kernels(3,i), shapeAttrGatFun_ptr);
             end
 
         end
         
         
         %% Trains the DMP_orient.
-        %  @param[in] Time: Row vector with the timestamps of the training data points.
-        %  @param[in] yd_data: Row vector with the desired potition.
-        function [train_err] = train(this, train_method, Time, Qd_data, vRotd_data, dvRotd_data)
+        %  @param[in] train_method: The training method (see dmp_::TRAIN_METHOD enum).
+        %  @param[in] Time: 1xN row vector with the timestamps of the training data points.
+        %  @param[in] Qd_data: 4xN matrix with desired orientation as unit quaternion at each column for each timestep.
+        %  @param[in] vRotd_data: 3xN matrix with desired angular velocity at each column for each timestep.
+        %  @param[in] dvRotd_data: 3xN matrix with desired angular acceleration at each column for each timestep.
+        %  @param[in] train_error: Optinal pointer to return the training error as norm(F-Fd)/n_data.
+        %
+        function train_err = train(this, train_method, Time, Qd_data, vRotd_data, dvRotd_data)
 
             n_data = length(Time);
             
-            eqd = zeros(3, n_data);
-            Qgd = Qd_data(:,end);
-            this.Qgd = Qgd;
             this.Q0d = Qd_data(:,1);
-            for j=1:n_data, eqd(:,j) = this.quatLog(this.quatProd(Qd_data(:,j),this.quatInv(Qgd))); end
+            this.Qgd = Qd_data(:,end);
+            this.log_Qgd_invQ0d = this.quatLog( this.quatProd(this.Qgd, this.quatInv(this.Q0d) ) );
+            
+            eqd = zeros(3, n_data);           
+            for j=1:n_data, eqd(:,j) = this.quatLog(this.quatProd(Qd_data(:,j),this.quatInv(this.Qgd))); end
 
             tau = Time(end);
             this.tau_d = tau;
@@ -88,31 +98,39 @@ classdef DMP_orient < handle
             else, error('[DMP_orient::train]: Unsopported training method...');
             end
                 
-            train_err = zeros(3,3);
-            for i=1:3
-                train_err(1,i) = this.eq_f{i}.train(wsog_train_method, x, eqd(i,:));
-                train_err(2,i) = this.vRot_f{i}.train(wsog_train_method, x, vRotd_data(i,:));
-                train_err(3,i) = this.dvRot_f{i}.train(wsog_train_method, x, dvRotd_data(i,:));
+            if (nargout > 0)
+                train_err = zeros(3,3);
+                for i=1:3
+                    train_err(1,i) = this.eq_f{i}.train(wsog_train_method, x, eqd(i,:));
+                    train_err(2,i) = this.vRot_f{i}.train(wsog_train_method, x, vRotd_data(i,:));
+                    train_err(3,i) = this.dvRot_f{i}.train(wsog_train_method, x, dvRotd_data(i,:));
+                end
+            else
+                for i=1:3
+                    this.eq_f{i}.train(wsog_train_method, x, eqd(i,:));
+                    this.vRot_f{i}.train(wsog_train_method, x, vRotd_data(i,:));
+                    this.dvRot_f{i}.train(wsog_train_method, x, dvRotd_data(i,:));
+                end
             end
 
         end
         
         
-        %% Returns the derivatives of the DMP states.
+        %% Returns the angular acceleration for the given input state defined by the timestamp,
+        %  the orientation, the angular velocity and acceleration, the initial and target orientation
+        %  and an optinal coupling term.
         %  @param[in] x: phase variable.
         %  @param[in] Q: Current orientation as unit quaternion.
         %  @param[in] vRot: Current rotational velocity.
         %  @param[in] Q0: initial orientation as unit quaternion.
         %  @param[in] Qg: Goal orientation as unit quaternion.
-        %  @param[in] y_c: Coupling term.
-        %  @param[out] dvRot: Rotational acceleration.
-        %  @param[out] dx: Derivative of the phase variable.
-        function [dvRot, dx] = getStatesDot(this, x, Q, vRot, Q0, Qg, y_c)
+        %  @param[in] y_c: Coupling term. (optional, default=arma::vec().zeros(3))
+        %  @return dvRot: Rotational acceleration.
+        %
+        function dvRot = getRotAccel(this, x, Q, vRot, Q0, Qg, y_c)
 
             if (nargin < 7), y_c=zeros(3,1); end
 
-            dx = this.phaseDot(x);
-            
             eqd = zeros(3,1);
             vRotd = zeros(3,1);
             dvRotd = zeros(3,1);
@@ -122,15 +140,26 @@ classdef DMP_orient < handle
                 vRotd(i) = this.vRot_f{i}.output(x);
                 dvRotd(i) = this.dvRot_f{i}.output(x);
             end 
-            
+
             Qd = this.quatProd( this.quatExp(eqd), this.Qgd );
             
             tau = this.getTau();
             kt = this.tau_d / tau;
-            ks = this.quatLog( this.quatProd(Qg, this.quatInv(Q0) ) ) ./ this.quatLog( this.quatProd(this.Qgd, this.quatInv(this.Q0d) ) );
+            ks = this.quatLog( this.quatProd(Qg, this.quatInv(Q0) ) ) ./ this.log_Qgd_invQ0d;
             
             QQg = this.quatProd(Q,this.quatInv(Qg));
             inv_exp_QdQgd = this.quatInv( this.quatExp( ks.* this.quatLog( this.quatProd(Qd,this.quatInv(this.Qgd)) ) ) );
+            
+            eqd = eqd'
+            vRotd = vRotd'
+            dvRotd = dvRotd'
+            Qd = Qd'
+            tau
+            kt
+            ks = ks'
+            QQg = QQg'
+            inv_exp_QdQgd = inv_exp_QdQgd'
+            error('Stop');
             
             dvRot = kt^2*ks.*dvRotd - (this.a_z/tau)*(vRot-kt*ks.*vRotd) ...
                     -(this.a_z*this.b_z/tau^2) * this.quatLog ( this.quatProd(QQg, inv_exp_QdQgd)) + y_c;
@@ -138,8 +167,9 @@ classdef DMP_orient < handle
         end
         
 
-        %% Returns the time scale of the DMP_orient.
-        %  @param[out] tau: The time scale of the this.
+        %% Returns the time scaling factor.
+        %  @return: The time scaling factor.
+        %
         function tau = getTau(this)
 
             tau = this.can_clock_ptr.getTau();
@@ -147,17 +177,20 @@ classdef DMP_orient < handle
         end
         
         
-        %% Sets the time scale of the DMP_orient.
-        function tau = setTau(this, tau)
+        %% Sets the time scaling factor.
+        %  @param[in] tau: The time scaling factor.
+        %
+        function setTau(this, tau)
 
             this.can_clock_ptr.setTau(tau);
 
         end
         
         
-        %% Returns the phase variable.
+        %% Returns the phase variable corresponding to the given time instant.
         %  @param[in] t: The time instant.
-        %  @param[out] x: The phase variable for time 't'.
+        %  @return: The phase variable for time 't'.
+        %
         function x = phase(this, t)
             
             x = this.can_clock_ptr.getPhase(t);
@@ -167,7 +200,8 @@ classdef DMP_orient < handle
         
         %% Returns the derivative of the phase variable.
         %  @param[in] x: The phase variable.
-        %  @param[out] dx: The derivative of the phase variable.
+        %  @return: The derivative of the phase variable.
+        %
         function dx = phaseDot(this, x)
             
             dx = this.can_clock_ptr.getPhaseDot(x);
