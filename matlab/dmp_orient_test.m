@@ -1,4 +1,4 @@
-function test_orient_DMP()
+function dmp_orient_test()
 
 set_matlab_utils_path();
 

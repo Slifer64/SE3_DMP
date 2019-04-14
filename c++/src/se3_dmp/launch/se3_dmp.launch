@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+
+<launch>
+
+    <arg name="node_name" default="se3_dmp_node" />
+    <node pkg="se3_dmp" type="se3_dmp" name="$(arg node_name)"
+          output="screen" cwd="node">
+
+          <rosparam>
+            train_data_filename: "train_data.bin"
+            sim_data_filename: "sim_data.bin"
+            a_z: 20
+            # b_z: a_z/4
+            train_method: "LWR"             # training method, {"LWR", "LS"}
+            shape_attr_gat_type: "Sigmoid"  # type of gating, {"Linear","Exp","Sigmoid"}
+            s0: 1.0                         # initial gating value
+            send: 0.5                       # terminal gating value
+            N_kernels: [60, 60, 60]
+          </rosparam>
+
+    </node>
+
+</launch>
