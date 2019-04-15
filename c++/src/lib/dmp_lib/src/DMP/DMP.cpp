@@ -11,6 +11,7 @@ namespace as64_
     this->init(N_kernels, a_z, b_z, can_clock_ptr, shape_attr_gating_ptr);
   }
 
+
   void DMP::init(int N_kernels, double a_z, double b_z, std::shared_ptr<CanonicalClock> &can_clock_ptr,
     std::shared_ptr<GatingFunction> &shape_attr_gating_ptr)
   {
@@ -30,8 +31,8 @@ namespace as64_
   }
 
 
-  double DMP::train(dmp_::TRAIN_METHOD train_method, const arma::rowvec &Time,
-    const arma::rowvec &yd_data, const arma::rowvec &dyd_data, const arma::rowvec &ddyd_data, bool ret_train_err)
+  void DMP::train(dmp_::TRAIN_METHOD train_method, const arma::rowvec &Time,
+    const arma::rowvec &yd_data, const arma::rowvec &dyd_data, const arma::rowvec &ddyd_data, double *train_err)
   {
     int n_data = Time.size();
     int i_end = n_data-1;
@@ -60,34 +61,36 @@ namespace as64_
     else throw std::runtime_error("[DMP::train]: Unsopported training method...");
 
     double train_error = -1;
-    if (ret_train_err)
+    if (train_err)
     {
       arma::rowvec F(Fd.size());
       for (int i=0; i<F.size(); i++)
       {
         F(i) = this->shapeAttractor(x(i), y0, g);
       }
-      train_error = arma::norm(F-Fd)/F.size();
+      *train_err = arma::norm(F-Fd)/F.size();
     }
-
-    return train_error;
   }
 
 
-  arma::vec DMP::statesDot(double x, double y, double z, double y0, double g, double y_c, double z_c) const
+  void DMP::calcStatesDot(double x, double y, double z, double y0, double g, double y_c, double z_c)
   {
     double tau = this->getTau();
 
     double shape_attr = this->shapeAttractor(x, y0, g);
     double goal_attr = this->goalAttractor(x, y, z, g);
 
-    double dz = ( goal_attr + shape_attr + z_c) / tau;
-    double dy = ( z + y_c) / tau;
-    double dx = this->phaseDot(x);
+    this->dz = ( goal_attr + shape_attr + z_c) / tau;
+    this->dy = ( z + y_c) / tau;
+    this->dx = this->phaseDot(x);
+  }
 
-    arma::vec statesDot(3);
-    statesDot << dz << dy << dx;
-    return statesDot;
+
+  double DMP::getAccel(double x, double y, double dy, double y0, double g, double y_c, double z_c)
+  {
+    double z = dy*this->getTau();
+    this->calcStatesDot(x, y, z, y0, g, y_c, z_c);
+    return this->getDz()/this->getTau();
   }
 
 
@@ -238,15 +241,8 @@ namespace as64_
     return dC_dtheta;
   }
 
-
-  double DMP::getAccel(double y, double dy, double y0, double y_c, double z_c,
-                  double x_hat, double g_hat, double tau_hat) const
-  {
-    double z = dy*tau_hat;
-    arma::vec s_dot = this->statesDot(x_hat, y, z, y0, g_hat, y_c, z_c);
-    double dz = s_dot(0);
-    double ddy = dz/tau_hat;
-    return ddy;
-  }
+  double DMP::getDx() const { return this->dx; }
+  double DMP::getDy() const { return this->dy; }
+  double DMP::getDz() const { return this->dz; }
 
 } // namespace as64

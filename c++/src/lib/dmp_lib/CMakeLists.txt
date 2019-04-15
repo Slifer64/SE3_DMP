@@ -30,7 +30,7 @@ add_library(${PROJECT_NAME}
   src/trainMethods/LWR.cpp
 
   src/DMP/DMP.cpp
-
+  src/DMP/DMP_pos.cpp
   src/DMP/WSoG.cpp
   src/DMP/DMP_orient.cpp
 )

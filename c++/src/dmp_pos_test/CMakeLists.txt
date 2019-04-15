@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 
-project(se3_dmp)
+project(dmp_pos_test)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
@@ -9,8 +9,6 @@ find_package(catkin REQUIRED COMPONENTS
   roslib
   dmp_lib
   io_lib
-  lwr4p
-  ati_sensor
 )
 
 catkin_package(
@@ -25,10 +23,7 @@ include_directories(
 )
 
 add_executable(${PROJECT_NAME}
-  src/source_list/se3_dmp.cpp
-  src/source_list/utils.cpp
-  src/source_list/robot/robot.cpp
-  src/source_list/robot/lwr4p_robot.cpp
+  src/dmp_pos_test.cpp
   src/main.cpp
 )
 
@@ -42,6 +37,4 @@ target_link_libraries(${PROJECT_NAME}
   armadillo
   dmp_lib
   io_lib
-  lwr4p
-  ati_sensor
 )

@@ -49,7 +49,7 @@ toc
 disp('DMP simulation...');
 tic
 Q0 = Qd_data(:,1);
-Qg = Qd_data(:,end);
+Qg = quatExp(1.0*quatLog(Qd_data(:,end)));
 T = Timed(end);
 dt = Ts;
 [Time, Q_data, vRot_data, dvRot_data] = simulateOrientDMP(dmp_o, Q0, Qg, T, dt);
@@ -96,6 +96,12 @@ for i=1:3
    if (i==3), xlabel('time [$s$]', 'interpreter','latex', 'fontsize',17); end
    hold off;
 end
+
+figure;
+hold on;
+plot3(Pq_data(1,:), Pq_data(2,:), Pq_data(3,:), 'LineWidth', line_width, 'LineStyle','-');
+plot3(Pqd_data(1,:), Pqd_data(2,:), Pqd_data(3,:), 'LineWidth', line_width, 'LineStyle','--');
+hold off;
 
 % figure;
 % Q_labels = {'$\eta$','$\epsilon_1$', '$\epsilon_2$', '$\epsilon_3$'};

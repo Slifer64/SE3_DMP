@@ -33,6 +33,10 @@ public:
 
   long double zero_tol; ///< small value used to avoid divisions with very small numbers
 
+  double dx;
+  double dy;
+  double dz;
+
   // methods
 public:
 
@@ -66,8 +70,8 @@ public:
    *  @param[in] ret_train_err Flag to return the training error (optinal, default = false).
    *  @return The training error (-1 is returned if \a ret_train_err=false)
    */
-  double train(dmp_::TRAIN_METHOD train_method, const arma::rowvec &Time, const arma::rowvec &yd_data,
-    const arma::rowvec &dyd_data, const arma::rowvec &ddyd_data, bool ret_train_err=false);
+  void train(dmp_::TRAIN_METHOD train_method, const arma::rowvec &Time, const arma::rowvec &yd_data,
+    const arma::rowvec &dyd_data, const arma::rowvec &ddyd_data, double *train_err=0);
 
 
   /** \brief Returns the derivatives of the DMP states.
@@ -80,7 +84,7 @@ public:
    *  @param[in] z_c Coupling term for the dynamical equation of the \a z state.
    *  @return  The states derivatives of the DMP as a 3x1 vector (dz, dy, dx).
    */
-  arma::vec statesDot(double x, double y, double z, double y0, double g, double y_c=0.0, double z_c=0.0) const;
+  void calcStatesDot(double x, double y, double z, double y0, double g, double y_c=0.0, double z_c=0.0);
 
 
   /** \brief Returns the number of kernels of the DMP.
@@ -145,8 +149,11 @@ public:
    * @param[in] tau_hat Time scale estimate.
    * @return ddy DMP's acceleration.
    */
-  double getAccel(double y, double dy, double y0, double y_c, double z_c,
-                  double x_hat, double g_hat, double tau_hat) const;
+  double getAccel(double x, double y, double dy, double y0, double g, double y_c, double z_c);
+
+  double getDx() const;
+  double getDy() const;
+  double getDz() const;
 
 private:
 

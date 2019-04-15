@@ -11,6 +11,8 @@
 #include <dmp_lib/GatingFunction/ExpGatingFunction.h>
 #include <dmp_lib/GatingFunction/SigmoidGatingFunction.h>
 
+#include <se3_dmp/robot/lwr4p_robot.h>
+
 #include <io_lib/io_utils.h>
 
 using namespace as64_;
@@ -26,6 +28,9 @@ SE3_DMP::SE3_DMP()
   std::cerr << "[SE3_DMP::SE3_DMP]: train() ...\n";
   train();
 
+  if (robot_type.compare("lwr4p")==0) robot.reset(new LWR4p_Robot());
+  else throw std::runtime_error("Unsupported robot type \"" + robot_type + "\".");
+
   std::cerr << "[SE3_DMP::SE3_DMP]: simulate() ...\n";
   simulate();
 
@@ -37,6 +42,8 @@ SE3_DMP::SE3_DMP()
 void SE3_DMP::readParams()
 {
   ros::NodeHandle nh("~");
+
+  if (!nh.getParam("robot_type", robot_type)) throw std::ios_base::failure("[SE3_DMP::readParams]: Failed to read \"robot_type\" param.");
 
   if (!nh.getParam("train_data_filename", train_data_filename)) throw std::ios_base::failure("[SE3_DMP::readParams]: Failed to read \"train_data_filename\" param.");
   if (!nh.getParam("sim_data_filename", sim_data_filename)) throw std::ios_base::failure("[SE3_DMP::readParams]: Failed to read \"sim_data_filename\" param.");
@@ -62,7 +69,11 @@ void SE3_DMP::readTrainingData()
   std::ifstream in(path.c_str(), std::ios::in);
   if (!in) throw std::ios_base::failure("[SE3_DMP::readTrainingData]: Failed to open file \"" + path + "\".");
 
+  io_::read_mat(q0, in, true);
   io_::read_mat(Timed, in, true);
+  io_::read_mat(Pd_data, in, true);
+  io_::read_mat(dPd_data, in, true);
+  io_::read_mat(ddPd_data, in, true);
   io_::read_mat(Qd_data, in, true);
   io_::read_mat(vRotd_data, in, true);
   io_::read_mat(dvRotd_data, in, true);
@@ -79,25 +90,35 @@ void SE3_DMP::train()
   else if (shape_attr_gat_type.compare("Sigmoid")==0) shape_attr_gat_ptr.reset(new SigmoidGatingFunction(s0,send));
   else throw std::runtime_error("[SE3_DMP::train]: Unsupported shapre attractor gating \"" + shape_attr_gat_type + "\".");
 
-  dmp_o.reset(new DMP_orient(N_kernels, a_z, b_z, can_clock_ptr, shape_attr_gat_ptr));
-
   dmp_::TRAIN_METHOD tr_m;
   if (train_method.compare("LWR")==0) tr_m = dmp_::LWR;
   else if (train_method.compare("LS")==0) tr_m = dmp_::LS;
   else throw std::runtime_error("[SE3_DMP::train]: Unsupported training method \"" + train_method + "\".");
 
+  dmp_p.reset(new DMP_pos(N_kernels, a_z, b_z, can_clock_ptr, shape_attr_gat_ptr));
+  dmp_o.reset(new DMP_orient(N_kernels, a_z, b_z, can_clock_ptr, shape_attr_gat_ptr));
+
+  std::cout << "Position DMP training...\n";
+  timer.tic();
+  arma::vec offline_train_mse_p;
+  dmp_p->train(tr_m, Timed, Pd_data, dPd_data, ddPd_data, &offline_train_mse_p);
+  std::cout << "offline_train_mse_p = \n" << offline_train_mse_p << "\n";
+  std::cout << "Elapsed time " << timer.toc() << " sec\n";
+
   std::cout << "Orient DMP training...\n";
   timer.tic();
-  arma::mat offline_train_mse;
-  dmp_o->train(tr_m, Timed, Qd_data, vRotd_data, dvRotd_data, &offline_train_mse);
-  std::cout << "offline_train_mse = \n" << offline_train_mse << "\n";
+  arma::mat offline_train_mse_o;
+  dmp_o->train(tr_m, Timed, Qd_data, vRotd_data, dvRotd_data, &offline_train_mse_o);
+  std::cout << "offline_train_mse_o = \n" << offline_train_mse_o << "\n";
   std::cout << "Elapsed time " << timer.toc() << " sec\n";
 
 }
 
 void SE3_DMP::simulate()
 {
-  int i_end = Qd_data.n_cols - 1;
+  int i_end = Pd_data.n_cols - 1;
+  arma::vec P0 = Pd_data.col(0);
+  arma::vec Pg = Pd_data.col(i_end);
   arma::vec Q0 = Qd_data.col(0);
   arma::vec Qg = Qd_data.col(i_end);
   double T = Timed(i_end);
@@ -108,6 +129,10 @@ void SE3_DMP::simulate()
   double x = 0.0;
   double dx = 0.0;
 
+  arma::vec P = P0;
+  arma::vec dP = arma::vec().zeros(3);
+  arma::vec ddP = arma::vec().zeros(3);
+
   arma::vec Q = Q0;
   arma::vec vRot = arma::vec().zeros(3);
   arma::vec dvRot = arma::vec().zeros(3);
@@ -117,6 +142,9 @@ void SE3_DMP::simulate()
 
   int iters = 0;
   Time.clear();
+  P_data.clear();
+  dP_data.clear();
+  ddP_data.clear();
   Q_data.clear();
   vRot_data.clear();
   dvRot_data.clear();
@@ -126,13 +154,17 @@ void SE3_DMP::simulate()
   {
     // data logging
     Time = arma::join_horiz(Time, arma::vec({t}));
+    P_data = arma::join_horiz(P_data, P);
+    dP_data = arma::join_horiz(dP_data, dP);
+    ddP_data = arma::join_horiz(ddP_data, ddP);
     Q_data = arma::join_horiz(Q_data, Q);
     vRot_data = arma::join_horiz(vRot_data, vRot);
     dvRot_data = arma::join_horiz(dvRot_data, dvRot);
 
     // DMP simulation
-    arma::vec y_c = arma::vec().zeros(3);
-    dvRot = dmp_o->getRotAccel(x, Q, vRot, Q0, Qg, y_c);
+    arma::vec Z_c = arma::vec().zeros(3);
+    ddP = dmp_p->getAccel(x, P, dP, P0, Pg, Z_c);
+    dvRot = dmp_o->getRotAccel(x, Q, vRot, Q0, Qg, Z_c);
 
     // Update phase variable
     dx = can_clock_ptr->getPhaseDot(x);
@@ -144,6 +176,8 @@ void SE3_DMP::simulate()
     iters++;
     t = t + dt;
     x = x + dx*dt;
+    P = P + dP*dt;
+    dP = dP + ddP*dt;
     Q = quatProd( quatExp(vRot*dt), Q);
     vRot = vRot + dvRot*dt;
   }
@@ -159,6 +193,9 @@ void SE3_DMP::saveSimData()
 
   io_::write_scalar(static_cast<double>(a_z), out, true);
   io_::write_mat(Time, out, true);
+  io_::write_mat(P_data, out, true);
+  io_::write_mat(dP_data, out, true);
+  io_::write_mat(ddP_data, out, true);
   io_::write_mat(Q_data, out, true);
   io_::write_mat(vRot_data, out, true);
   io_::write_mat(dvRot_data, out, true);

@@ -144,7 +144,7 @@ void DMP_orient::train(dmp_::TRAIN_METHOD train_method, const arma::rowvec &Time
 
 
 arma::vec DMP_orient::getRotAccel(double x, const arma::vec &Q, const arma::vec &vRot,
-            const arma::vec &Q0, const arma::vec &Qg, const arma::vec &y_c)
+            const arma::vec &Q0, const arma::vec &Qg, const arma::vec &Z_c)
 {
 
     arma::vec eqd(3);
@@ -167,7 +167,7 @@ arma::vec DMP_orient::getRotAccel(double x, const arma::vec &Q, const arma::vec 
     arma::vec inv_exp_QdQgd = dmp_::quatInv( dmp_::quatExp( ks % dmp_::quatLog( dmp_::quatProd(Qd,dmp_::quatInv(this->Qgd)) ) ) );
 
     arma::vec dvRot = std::pow(kt,2)*ks%dvRotd - (this->a_z/tau)*(vRot-kt*ks%vRotd)
-            -(this->a_z*this->b_z/std::pow(tau,2)) * dmp_::quatLog ( dmp_::quatProd(QQg, inv_exp_QdQgd)) + y_c;
+            -(this->a_z*this->b_z/std::pow(tau,2)) * dmp_::quatLog ( dmp_::quatProd(QQg, inv_exp_QdQgd)) + Z_c;
 
     return dvRot;
 }

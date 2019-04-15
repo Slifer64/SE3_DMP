@@ -222,10 +222,10 @@ classdef DMP < handle % : public DMP_
         %  @param[out] dy: derivative of the \a y state of the this.
         %  @param[out] dz: derivative of the \a z state of the this.
         %  @param[out] dx: derivative of the phase variable of the this.
-        function [dy, dz, dx] = getStatesDot(this, x, y, z, y0, g, y_c, z_c)
+        function calcStatesDot(this, x, y, z, y0, g, y_c, z_c)
 
-            if (nargin < 8), y_c=0; end
-            if (nargin < 7), z_c=0; end
+            if (nargin < 7), y_c=0; end
+            if (nargin < 8), z_c=0; end
             
             this.x = x;
             this.y = y;
@@ -240,11 +240,11 @@ classdef DMP < handle % : public DMP_
             shape_attr = this.shapeAttractor(x, y0, g);
             goal_attr = this.goalAttractor(x, y, z, g);
 
-            dz = ( goal_attr + shape_attr + z_c) / tau;
+            this.dz = ( goal_attr + shape_attr + z_c) / tau;
 
-            dy = ( z + y_c) / tau;
+            this.dy = ( z + y_c) / tau;
 
-            dx = this.phaseDot(x);
+            this.dx = this.phaseDot(x);
 
         end
         
@@ -436,15 +436,14 @@ classdef DMP < handle % : public DMP_
         %  @param[in] y0: initial position.
         %  @param[in] y_c: coupling term for the dynamical equation of the \a y state.
         %  @param[in] z_c: coupling term for the dynamical equation of the \a z state.
-        %  @param[in] x_hat: phase variable estimate.
-        %  @param[in] g_hat: goal estimate.
-        %  @param[in] tau_hat: time scale estimate.
+        %  @param[in] x: phase variable.
+        %  @param[in] g: goal.
+        %  @param[in] tau: time scaling.
         %  @param[out] ddy: DMP's acceleration.
-        function ddy = getAccel(this, y, dy, y0, y_c, z_c, x_hat, g_hat, tau_hat)
-            
-            z = dy*tau_hat;
-            [~, dz] = this.getStatesDot(x_hat, y, z, y0, g_hat, y_c, z_c);
-            ddy = dz/tau_hat;
+        function ddy = getAccel(this, x, y, dy, y0, g, z_c)
+
+            this.calcStatesDot(x, y, this.getTau()*dy, y0, g, 0.0, z_c);
+            ddy = this.getDz()/this.getTau();
             
         end
         

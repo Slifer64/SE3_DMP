@@ -2,13 +2,11 @@
 
 <launch>
 
-    <arg name="node_name" default="se3_dmp_node" />
-    <node pkg="se3_dmp" type="se3_dmp" name="$(arg node_name)"
+    <arg name="node_name" default="dmp_pos_test_node" />
+    <node pkg="dmp_pos_test" type="dmp_pos_test" name="$(arg node_name)"
           output="screen" cwd="node">
 
           <rosparam>
-            robot_type: "lwr4p"
-
             train_data_filename: "train_data.bin"
             sim_data_filename: "sim_data.bin"
             a_z: 20
@@ -18,9 +16,6 @@
             s0: 1.0                         # initial gating value
             send: 0.5                       # terminal gating value
             N_kernels: [60, 60, 60]
-
-            temp_scale: 1.0
-            pose_offset: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
           </rosparam>
 
     </node>

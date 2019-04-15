@@ -131,8 +131,8 @@ void DMP_orient_test::simulate()
     dvRot_data = arma::join_horiz(dvRot_data, dvRot);
 
     // DMP simulation
-    arma::vec y_c = arma::vec().zeros(3);
-    dvRot = dmp_o->getRotAccel(x, Q, vRot, Q0, Qg, y_c);
+    arma::vec Z_c = arma::vec().zeros(3);
+    dvRot = dmp_o->getRotAccel(x, Q, vRot, Q0, Qg, Z_c);
 
     // Update phase variable
     dx = can_clock_ptr->getPhaseDot(x);

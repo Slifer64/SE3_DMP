@@ -124,12 +124,12 @@ classdef DMP_orient < handle
         %  @param[in] vRot: Current rotational velocity.
         %  @param[in] Q0: initial orientation as unit quaternion.
         %  @param[in] Qg: Goal orientation as unit quaternion.
-        %  @param[in] y_c: Coupling term. (optional, default=arma::vec().zeros(3))
+        %  @param[in] Z_c: Coupling term. (optional, default=arma::vec().zeros(3))
         %  @return dvRot: Rotational acceleration.
         %
-        function dvRot = getRotAccel(this, x, Q, vRot, Q0, Qg, y_c)
+        function dvRot = getRotAccel(this, x, Q, vRot, Q0, Qg, Z_c)
 
-            if (nargin < 7), y_c=zeros(3,1); end
+            if (nargin < 7), Z_c=zeros(3,1); end
 
             eqd = zeros(3,1);
             vRotd = zeros(3,1);
@@ -149,20 +149,11 @@ classdef DMP_orient < handle
             
             QQg = this.quatProd(Q,this.quatInv(Qg));
             inv_exp_QdQgd = this.quatInv( this.quatExp( ks.* this.quatLog( this.quatProd(Qd,this.quatInv(this.Qgd)) ) ) );
+            pQerr = this.quatLog( this.quatProd(QQg, inv_exp_QdQgd) );
             
-            eqd = eqd'
-            vRotd = vRotd'
-            dvRotd = dvRotd'
-            Qd = Qd'
-            tau
-            kt
-            ks = ks'
-            QQg = QQg'
-            inv_exp_QdQgd = inv_exp_QdQgd'
-            error('Stop');
+%             pQerr = quatLog( quatProd( Q, quatProd( quatExp(ks.*quatLog(quatProd(quatInv(Qd), this.Qgd))), quatInv(Qg)) ) );
             
-            dvRot = kt^2*ks.*dvRotd - (this.a_z/tau)*(vRot-kt*ks.*vRotd) ...
-                    -(this.a_z*this.b_z/tau^2) * this.quatLog ( this.quatProd(QQg, inv_exp_QdQgd)) + y_c;
+            dvRot = kt^2*ks.*dvRotd - (this.a_z/tau)*(vRot-kt*ks.*vRotd) - (this.a_z*this.b_z/tau^2) * pQerr + Z_c;
             
         end
         
