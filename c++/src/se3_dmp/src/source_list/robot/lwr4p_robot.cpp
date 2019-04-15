@@ -49,6 +49,9 @@ void LWR4p_Robot::setMode(const Robot::Mode &mode)
 
 void LWR4p_Robot::commandThread()
 {
+  arma::mat J;
+  arma::vec dq;
+
   while (isOk())
   {
     Mode new_mode = cmd_mode.get();
@@ -60,6 +63,10 @@ void LWR4p_Robot::commandThread()
         case FREEDRIVE:
           robot->setMode(lwr4p::Mode::TORQUE_CONTROL);
           jtorque_cmd.set(arma::vec().zeros(N_JOINTS));
+          break;
+        case CART_VEL_CTRL:
+          robot->setMode(lwr4p::Mode::TORQUE_CONTROL);
+          cart_vel_cmd.set(arma::vec().zeros(6));
           break;
         case IDLE:
           robot->setMode(lwr4p::Mode::POSITION_CONTROL);
@@ -81,6 +88,11 @@ void LWR4p_Robot::commandThread()
     // send command according to current mode
     switch (mode.get())
     {
+      case CART_VEL_CTRL:
+        J = robot->getRobotJacobian();
+        dq = arma::pinv(J)*cart_vel_cmd.get();
+        robot->setJointVelocity(dq);
+        break;
       case Robot::Mode::FREEDRIVE:
         robot->setJointTorque(jtorque_cmd.get());
         break;

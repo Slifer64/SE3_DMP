@@ -14,7 +14,7 @@ COLOR_RESET="\033[0m"
 cd $INSTALL_SCRIPTS_DIR
 AS64_ERROR=0
 
-declare -a arr=("frilibrary") # "ati_sensor" "eigen3" "armadillo")
+declare -a arr=("ati_sensor") # "frilibrary" "ati_sensor" "eigen3" "armadillo")
 
 echo -e $COLOR_BLUE"Installing as64_ws..."$COLOR_RESET
 

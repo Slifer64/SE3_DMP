@@ -30,7 +30,7 @@ fi
 # rm -rf ati/ > /dev/null && \
 mkdir ati && \
 cd ati && \
-git clone https://github.com/UTNuclearRoboticsPublic/netft_utils.git && \
+# git clone https://github.com/UTNuclearRoboticsPublic/netft_utils.git && \
 # mv netft_utils ati_sensor && \
 git clone https://github.com/kuka-isir/ati_sensor.git && \
 

@@ -91,6 +91,7 @@ public:
   bool isOk() const
   { return (robot->isOk() && !ext_stop()); }
 
+  void setTaskVelocity(const arma::vec &vel) { cart_vel_cmd.set(vel); }
   bool setJointsTrajectory(const arma::vec &qT, double duration);
 
   void setExternalStop(bool set) { ext_stop=set; robot->stop(); }

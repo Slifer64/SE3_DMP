@@ -17,6 +17,7 @@ public:
   /** The control modes that can be applied to the robot. */
   enum Mode
   {
+    CART_VEL_CTRL, // Cartesian velocity control
     FREEDRIVE, // freedrive mode (or gravity compensation)
     IDLE, // robot is idle and doesn't move
     STOPPED, // the robot stops
@@ -56,6 +57,8 @@ public:
 
   virtual void commandThread() = 0;
 
+  virtual void setTaskVelocity(const arma::vec &vel) = 0;
+
   virtual bool setJointsTrajectory(const arma::vec &qT, double duration) = 0;
 
   virtual arma::vec getJointsLowerLimits() const = 0;
@@ -74,6 +77,7 @@ protected:
   std::vector<std::string> mode_name; ///< robot's control mode name
 
   MtxVar<arma::vec> jpos_cmd;
+  MtxVar<arma::vec> cart_vel_cmd;
   MtxVar<arma::vec> jtorque_cmd;
 
   Semaphore KRC_tick;
