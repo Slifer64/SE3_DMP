@@ -180,6 +180,10 @@ void SE3_DMP::simulate()
     dP = dP + ddP*dt;
     Q = quatProd( quatExp(vRot*dt), Q);
     vRot = vRot + dvRot*dt;
+
+    arma::vec V_cmd = arma::join_vert(dP, vRot);
+    // robot->setTaskVelocity(V_cmd);
+    robot->update();
   }
 }
 

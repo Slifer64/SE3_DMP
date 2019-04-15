@@ -4,14 +4,10 @@
 
 Robot::Robot()
 {
-  modeName.resize(3);
-  modeName[0] = "CART_VEL_CTRL";
-  modeName[1] = "FREEDRIVE";
-  modeName[2] = "IDLE";
-
-  vel_cmd = arma::vec().zeros(6);
-
-  readParams();
+  mode_name.resize(3);
+  mode_name[0] = "FREEDRIVE";
+  mode_name[1] = "IDLE";
+  mode_name[2] = "STOPPED";
 }
 
 Robot::~Robot()
@@ -19,29 +15,14 @@ Robot::~Robot()
 
 }
 
-void Robot::readParams(const char *params_file)
-{
-  std::string path_to_config_file;
-  if (params_file != NULL) path_to_config_file = *params_file;
-  else path_to_config_file = ros::package::getPath(PACKAGE_NAME)+ "/config/Robot_config.yml";
-  as64_::io_::Parser parser(path_to_config_file);
-
-  if (!parser.getParam("Fext_dead_zone", Fext_dead_zone)) Fext_dead_zone = arma::vec().zeros(6);
-}
-
 Robot::Mode Robot::getMode() const
 {
-  return this->mode;
+  return mode.get();
 }
 
 std::string Robot::getModeName() const
 {
-  return modeName[getMode()];
-}
-
-std::string Robot::getErrMsg() const
-{
-  return err_msg;
+  return mode_name[getMode()];
 }
 
 Eigen::Vector4d Robot::rotm2quat(Eigen::Matrix3d rotm) const

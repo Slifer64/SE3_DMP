@@ -1,16 +1,37 @@
 #include <se3_dmp/robot/lwr4p_robot.h>
 
-LWR4p_Robot::LWR4p_Robot():N_JOINTS(7)
+LWR4p_Robot::LWR4p_Robot()
 {
+  N_JOINTS = 7;
+
+  jpos_low_lim = -arma::vec({170, 120, 170, 120, 170, 120, 170});
+  jpos_upper_lim = arma::vec({170, 120, 170, 120, 170, 120, 170});
+
+  jnames.resize(N_JOINTS);
+  jnames[0] = "lwr_joint_1";
+  for (int i=1;i<N_JOINTS;i++)
+  {
+    jnames[i] = jnames[i-1];
+    jnames[i].back()++;
+  }
+
   // Initialize generic robot with the kuka-lwr model
+  // std::cerr << "=======> Creating robot...\n";
   robot.reset(new lwr4p::Robot());
-  std::cout << "Robot created successfully!\n";
+  // std::cerr << "=======> Robot created successfully!\n";
 
   std::string ft_sensor_ip = "192.168.2.1";
-  std::cout << "Initializing F/T sensor at ip: " << ft_sensor_ip << "\n";
+  // std::cerr << "Initializing F/T sensor at ip: " << ft_sensor_ip << "\n";
   ftsensor.init(ft_sensor_ip.c_str());
   ftsensor.setTimeout(1.0);
   ftsensor.setBias();
+
+  ext_stop = false;
+  mode.set(Robot::STOPPED);
+  cmd_mode.set(mode.get());
+  jpos_cmd.set(robot->getJointPosition());
+
+  std::thread(&LWR4p_Robot::commandThread,this).detach();
 }
 
 LWR4p_Robot::~LWR4p_Robot()
@@ -18,148 +39,151 @@ LWR4p_Robot::~LWR4p_Robot()
 
 }
 
-bool LWR4p_Robot::isOk() const
-{
-  return (robot->isOk() || robot->getMode()==lwr4p::Mode::STOPPED);
-}
-
-void LWR4p_Robot::init()
-{
-  vel_cmd = arma::vec().zeros(6);
-
-  readParams();
-
-  ftsensor.setBias();
-
-  this->update();
-}
-
-double LWR4p_Robot::getControlCycle() const
-{
-  return robot->getControlCycle();
-}
-
-void LWR4p_Robot::update()
-{
-  robot->waitNextCycle();
-}
-
-void LWR4p_Robot::command()
-{
-  arma::mat J;
-  arma::vec dq;
-
-  switch (this->getMode())
-  {
-    case Robot::Mode::CART_VEL_CTRL:
-      J = robot->getRobotJacobian();
-      dq = arma::pinv(J)*vel_cmd;
-      robot->setJointVelocity(dq);
-      break;
-    case Robot::Mode::FREEDRIVE:
-      robot->setJointTorque(arma::vec().zeros(N_JOINTS));
-      break;
-    case Robot::Mode::IDLE:
-      // do nothing for kuka
-      break;
-  }
-}
-
 void LWR4p_Robot::setMode(const Robot::Mode &mode)
 {
-  if (mode == this->getMode()) return;
+  if (mode == cmd_mode.get()) return;
 
-  switch (mode){
-    case CART_VEL_CTRL:
-      robot->setMode(lwr4p::Mode::VELOCITY_CONTROL);
-      PRINT_INFO_MSG("Robot set in CART_VEL_CTRL MODE.\n");
-      break;
-    case FREEDRIVE:
-      robot->setMode(lwr4p::Mode::TORQUE_CONTROL);
-      PRINT_INFO_MSG("Robot set in FREEDRIVE MODE.\n");
-      break;
-    case IDLE:
-      // for (int i=0;i<10;i++)
-      // {
-      //   robot->setJointVelocity(arma::vec().zeros(7));
-      //   update();
-      // }
-      // robot->setMode(lwr4p::Mode::POSITION_CONTROL);
-      robot->setMode(lwr4p::Mode::STOPPED);
-      PRINT_INFO_MSG("Robot set in IDLE MODE.\n");
-      break;
+  cmd_mode.set(mode);
+  mode_change.wait(); // wait to get notification from commandThread
+}
+
+void LWR4p_Robot::commandThread()
+{
+  while (isOk())
+  {
+    Mode new_mode = cmd_mode.get();
+    // check if we have to switch mode
+    if (new_mode != mode.get())
+    {
+      switch (new_mode)
+      {
+        case FREEDRIVE:
+          robot->setMode(lwr4p::Mode::TORQUE_CONTROL);
+          jtorque_cmd.set(arma::vec().zeros(N_JOINTS));
+          break;
+        case IDLE:
+          robot->setMode(lwr4p::Mode::POSITION_CONTROL);
+          jpos_cmd.set(robot->getJointPosition());
+          break;
+        case STOPPED:
+          robot->setMode(lwr4p::Mode::POSITION_CONTROL);
+          robot->setMode(lwr4p::Mode::STOPPED);
+          // robot->setExternalStop(true);
+          mode.set(new_mode);
+          mode_change.notify(); // unblock in case wait was called from another thread
+          KRC_tick.notify(); // unblock in case wait was called from another thread
+          return;
+      }
+      mode.set(new_mode);
+      mode_change.notify();
+    }
+
+    // send command according to current mode
+    switch (mode.get())
+    {
+      case Robot::Mode::FREEDRIVE:
+        robot->setJointTorque(jtorque_cmd.get());
+        break;
+      case Robot::Mode::IDLE:
+        robot->setJointPosition(jpos_cmd.get());
+        break;
+    }
+
+    // sync with KRC
+    robot->waitNextCycle();
+    KRC_tick.notify();
   }
-  this->mode = mode;
+
+  mode_change.notify(); // unblock in case wait was called from another thread
+  KRC_tick.notify(); // unblock in case wait was called from another thread
+}
+
+arma::mat get5thOrder(double t, arma::vec p0, arma::vec pT, double totalTime)
+{
+  arma::mat retTemp = arma::zeros<arma::mat>(p0.n_rows, 3);
+
+  if (t < 0)
+  {
+    // before start
+    retTemp.col(0) = p0;
+  }
+  else if (t > totalTime)
+  {
+    // after the end
+    retTemp.col(0) = pT;
+  }
+  else
+  {
+    // somewhere betweeen ...
+    // position
+    retTemp.col(0) = p0 +
+                     (pT - p0) * (10 * pow(t / totalTime, 3) -
+                     15 * pow(t / totalTime, 4) +
+                     6 * pow(t / totalTime, 5));
+    // vecolity
+    retTemp.col(1) = (pT - p0) * (30 * pow(t, 2) / pow(totalTime, 3) -
+                     60 * pow(t, 3) / pow(totalTime, 4) +
+                     30 * pow(t, 4) / pow(totalTime, 5));
+    // acceleration
+    retTemp.col(2) = (pT - p0) * (60 * t / pow(totalTime, 3) -
+                     180 * pow(t, 2) / pow(totalTime, 4) +
+                     120 * pow(t, 3) / pow(totalTime, 5));
+  }
+
+  // return vector
+  return retTemp;
+}
+
+bool LWR4p_Robot::setJointsTrajectory(const arma::vec &qT, double duration)
+{
+  // keep last known robot mode
+  Robot::Mode prev_mode = this->getMode();
+  // start controller
+  this->setMode(Robot::IDLE);
+  // std::cerr << "[LWR4p_Robot::setJointsTrajectory]: Mode changed to \"IDLE\"!\n";
+
+  // waits for the next tick
+  update();
+
+  arma::vec q0 = robot->getJointPosition();
+  arma::vec qref = q0;
+  // std::cerr << "q0 = " << q0.t()*180/3.14159 << "\n";
+  // std::cerr << "duration = " << duration << " sec\n";
+
+  // robot->setMode(lwr4p::Mode::POSITION_CONTROL);
+  // initalize time
+  double t = 0.0;
+  // the main while
+  while (t < duration)
+  {
+    if (!isOk())
+    {
+      err_msg = "An error occured on the robot!";
+      return false;
+    }
+
+    // compute time now
+    t += getCtrlCycle();
+    // update trajectory
+    qref = get5thOrder(t, q0, qT, duration).col(0);
+
+    // set joint positions
+    jpos_cmd.set(qref);
+    //setJointPosition(qref);
+
+    // waits for the next tick
+    update();
+  }
+  // reset last known robot mode
+  this->setMode(prev_mode);
+
+  // std::cerr << "[LWR4p_Robot::setJointsTrajectory]: Mode restored to previous mode!\n";
+
+  return true;
 }
 
 void LWR4p_Robot::stop()
 {
-  robot->setMode(lwr4p::Mode::STOPPED);
-}
-
-void LWR4p_Robot::setTaskVelocity(const arma::vec &vel)
-{
-  if (this->getMode() != Robot::Mode::CART_VEL_CTRL)
-  {
-    throw std::runtime_error("[ERROR] LWR4p_Robot::setTaskVelocity: Current mode is \"" + getModeName() + "\".\n");
-  }
-
-  vel_cmd = vel;
-}
-
-void LWR4p_Robot::setJointTrajectory(const arma::vec &qT, double duration)
-{
-  robot->setJointTrajectory(qT, duration);
-}
-
-arma::vec LWR4p_Robot::getJointPosition() const
-{
-  return robot->getJointPosition();
-}
-
-arma::mat LWR4p_Robot::getTaskPose() const
-{
-  return robot->getTaskPose();
-}
-
-arma::vec LWR4p_Robot::getTaskPosition() const
-{
-  arma::vec task_pos = robot->getTaskPosition();
-  return task_pos;
-}
-
-arma::vec LWR4p_Robot::getTaskOrientation() const
-{
-  arma::vec task_orient(4);
-  arma::mat R = robot->getTaskOrientation();
-  task_orient = rotm2quat(R);
-  return task_orient;
-}
-
-arma::vec LWR4p_Robot::getTaskWrench()
-{
-  static double measurements[6];
-  uint32_t rdt(0),ft(0);
-  ftsensor.getMeasurements(measurements,rdt,ft);
-
-  arma::vec Fext(6);
-  Fext(0) = measurements[0];
-  Fext(1) = measurements[1];
-  Fext(2) = measurements[2];
-  Fext(3) = measurements[3];
-  Fext(4) = measurements[4];
-  Fext(5) = measurements[5];
-
-  arma::mat R = robot->getTaskOrientation();
-  Fext.subvec(0,2) = R*Fext.subvec(0,2);
-  Fext.subvec(3,5) = R*Fext.subvec(3,5);
-
-  // Fext = robot->getExternalWrench();
-  // Fext = -Fext;
-
-  arma::vec sign_Fext = arma::sign(Fext);
-  arma::vec Fext2 = Fext - sign_Fext%Fext_dead_zone;
-  Fext2 = 0.5*(arma::sign(Fext2)+sign_Fext)%arma::abs(Fext2);
-
-  return Fext2;
+  // setMode(Robot::STOPPED);
+  robot->stop();
 }

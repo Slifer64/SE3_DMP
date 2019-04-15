@@ -5,6 +5,7 @@
 #include <exception>
 #include <vector>
 #include <cstring>
+#include <thread>
 #include <armadillo>
 #include <Eigen/Dense>
 
@@ -16,9 +17,9 @@ public:
   /** The control modes that can be applied to the robot. */
   enum Mode
   {
-    CART_VEL_CTRL, // Cartesian velocity control
-    FREEDRIVE, // freedrive mode
+    FREEDRIVE, // freedrive mode (or gravity compensation)
     IDLE, // robot is idle and doesn't move
+    STOPPED, // the robot stops
   };
 
   Robot();
@@ -27,54 +28,55 @@ public:
   Robot::Mode getMode() const;
   std::string getModeName() const;
 
-  // ===========================================
-  // ========   Virtual functions  =============
-  // ===========================================
+  virtual std::string getErrMsg() const = 0;
 
+  virtual int getNumOfJoints() const = 0;
 
-  virtual void init() = 0;
+  virtual arma::vec getTaskPosition() const = 0;
+  virtual arma::vec getTaskOrientation() const = 0;
+  virtual arma::vec getTaskForce() const = 0;
+  virtual arma::vec getTaskTorque() const = 0;
+  virtual arma::vec getTaskWrench() const = 0;
 
-  virtual double getControlCycle() const = 0;
+  virtual arma::vec getJointsPosition() const = 0;
+  virtual arma::vec getJointsTorque() const = 0;
+  virtual arma::mat getJacobian() const = 0;
 
-  virtual bool isOk() const = 0;
-
-  virtual std::string getErrMsg() const;
-
+  /** Updates the robot state (position, forces, velocities etc.) by reading them
+   *  from the actual hardware. Must be called once in each control cycle.
+   */
   virtual void update() = 0;
 
-  virtual void command() = 0;
+  virtual void stop() = 0;
 
   virtual void setMode(const Robot::Mode &mode) = 0;
 
-  virtual void setTaskVelocity(const arma::vec &vel) = 0;
+  virtual double getCtrlCycle() const = 0;
+  virtual bool isOk() const = 0;
 
-  virtual void setJointTrajectory(const arma::vec &qT, double duration) = 0;
+  virtual void commandThread() = 0;
 
-  virtual arma::vec getJointPosition() const = 0;
+  virtual bool setJointsTrajectory(const arma::vec &qT, double duration) = 0;
 
-  virtual arma::mat getTaskPose() const = 0;
+  virtual arma::vec getJointsLowerLimits() const = 0;
+  virtual arma::vec getJointsUpperLimits() const = 0;
 
-  virtual arma::vec getTaskPosition() const = 0;
+  virtual std::vector<std::string> getJointNames() const = 0;
 
-  virtual arma::vec getTaskOrientation() const = 0;
-
-  virtual arma::vec getTaskWrench() = 0;
+  virtual void setExternalStop(bool set) = 0;
 
 protected:
 
   Eigen::Vector4d rotm2quat(Eigen::Matrix3d rotm) const;
   arma::vec rotm2quat(const arma::mat &rotm) const ;
 
-  Mode mode; ///< robot's control mode
-  std::vector<std::string> modeName; ///< robot's control mode name
-  arma::vec vel_cmd; ///< commanded task velocity expressed in base frame.
+  MtxVar<Mode> mode; // current mode
+  std::vector<std::string> mode_name; ///< robot's control mode name
 
-  arma::vec Fext_dead_zone; ///< dead zone applied to external force measurement
+  MtxVar<arma::vec> jpos_cmd;
+  MtxVar<arma::vec> jtorque_cmd;
 
-  std::string err_msg; ///< contains the description of an occured error.
-
-  void readParams(const char *params_file = NULL);
-
+  Semaphore KRC_tick;
 };
 
 #endif // SE3_DMP_ROBOT_H
