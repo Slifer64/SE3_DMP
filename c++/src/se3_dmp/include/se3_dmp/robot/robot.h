@@ -40,7 +40,6 @@ public:
   virtual arma::vec getTaskWrench() const = 0;
 
   virtual arma::vec getJointsPosition() const = 0;
-  virtual arma::vec getJointsTorque() const = 0;
   virtual arma::mat getJacobian() const = 0;
 
   /** Updates the robot state (position, forces, velocities etc.) by reading them

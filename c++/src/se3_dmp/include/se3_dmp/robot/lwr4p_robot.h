@@ -66,9 +66,6 @@ public:
   arma::vec getJointsPosition() const
   { return robot->getJointPosition(); }
 
-  arma::vec getJointsTorque() const
-  { return robot->getJointExternalTorque(); }
-
   arma::mat getJacobian() const
   { return robot->getRobotJacobian(); }
 

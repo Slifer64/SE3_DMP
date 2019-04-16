@@ -56,12 +56,14 @@ set(SRC_LIST
   src/source_list/utils.cpp
   src/source_list/robot/robot.cpp
   src/source_list/robot/lwr4p_robot.cpp
+  src/source_list/robot/lwr4p_sim_robot.cpp
 
   src/main.cpp
 )
 
 add_executable(${PROJECT_NAME}
   ${SRC_LIST}
+  resources/resource.qrc
 )
 
 add_dependencies(${PROJECT_NAME}

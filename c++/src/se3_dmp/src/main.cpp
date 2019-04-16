@@ -11,5 +11,7 @@ int main(int argc, char **argv)
   std::shared_ptr<SE3_DMP> se3_dmp;
   se3_dmp.reset(new SE3_DMP());
 
+  se3_dmp->run();
+
   return 0;
 }

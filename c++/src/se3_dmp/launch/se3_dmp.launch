@@ -7,7 +7,7 @@
           output="screen" cwd="node">
 
           <rosparam>
-            robot_type: "lwr4p"
+            robot_type: "lwr4p_sim"
 
             train_data_filename: "train_data.bin"
             sim_data_filename: "sim_data.bin"

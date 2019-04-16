@@ -13,19 +13,38 @@
 
 #include <se3_dmp/robot/robot.h>
 
+#include <se3_dmp/gui/mainwindow.h>
+
 class SE3_DMP
 {
 
 public:
   SE3_DMP();
 
+  void run();
+
 private:
+  void launchGUI();
+  bool gotoStartPose();
 
   void readParams();
-  void readTrainingData();
-  void train();
+  bool loadTrainingData(const std::string &path);
+  bool train();
   void simulate();
-  void saveSimData();
+  bool saveExecData(const std::string &save_path="");
+  void clearData();
+
+  void setMode(Robot::Mode mode);
+
+  arma::vec q_start; // start pose
+
+  std::string err_msg;
+  void setErrMsg(const std::string &msg) { err_msg = msg; }
+  std::string getErrMsg() const { return err_msg; }
+
+  std::string info_msg;
+  void setInfoMsg(const std::string &msg) { info_msg = msg; }
+  std::string getInfoMsg() const { return info_msg; }
 
   // DMP related params
   std::string train_method;
@@ -38,6 +57,9 @@ private:
   std::shared_ptr<as64_::DMP_orient> dmp_o;
   std::string shape_attr_gat_type;
   double s0, send;
+  bool is_trained;
+
+  bool controller_finished;
 
   // training data
   std::string train_data_filename; // name of the file containing the training data
@@ -65,6 +87,12 @@ private:
   // robot
   std::string robot_type;
   std::shared_ptr<Robot> robot;
+
+  // GUI
+  MainWindow *gui;
+
+  Semaphore start_sem;
+  Semaphore finish_sem;
 
   static arma::vec quatProd(const arma::vec &quat1, const arma::vec &quat2);
   static arma::vec quatExp(const arma::vec &v_rot, double zero_tol=1e-16);
