@@ -5,6 +5,7 @@
 #include <exception>
 #include <fstream>
 #include <iostream>
+#include <algorithm>
 
 #include <ros/ros.h>
 #include <ros/package.h>
@@ -26,7 +27,7 @@ SE3_DMP::SE3_DMP()
 
   ros::NodeHandle("~").getParam("robot_type",robot_type);
   if (robot_type.compare("lwr4p")==0) robot.reset(new LWR4p_Robot);
-  if (robot_type.compare("lwr4p_sim")==0) robot.reset(new LWR4p_Sim_Robot);
+  else if (robot_type.compare("lwr4p_sim")==0) robot.reset(new LWR4p_Sim_Robot);
   else throw std::runtime_error("Unsupported robot type \"" + robot_type + "\".");
 
   launchGUI();
@@ -137,7 +138,7 @@ bool SE3_DMP::gotoStartPose()
 {
   robot->update();
   arma::vec q = robot->getJointsPosition();
-  double duration = arma::max(arma::abs(q-q_start))*8.0/3.14159;
+  double duration = std::max(arma::max(arma::abs(q-q_start))*8.0/3.14159, 2.5);
   return robot->setJointsTrajectory(q_start, duration);
 }
 
@@ -162,6 +163,36 @@ void SE3_DMP::readParams()
   std::vector<int> n_ker;
   if (!nh.getParam("N_kernels", n_ker)) throw std::ios_base::failure("Failed to read \"N_kernels\" param.");
   N_kernels = n_ker;
+
+  std::vector<double> temp;
+  // === Cartesian spring-damper params ===
+  if (!nh.getParam("Mp", temp)) throw std::ios_base::failure("[SE3_DMP::readParams]: Failed to read \"Mp\" param.");
+  Mp = temp;
+  if (!nh.getParam("Kp", temp)) throw std::ios_base::failure("[SE3_DMP::readParams]: Failed to read \"Kp\" param.");
+  Kp = temp;
+  if (!nh.getParam("Dp", temp)) Dp = 2*arma::sqrt( Mp % Kp);
+  else Dp = temp;
+
+  // === Orientation spring-damper params ===
+  if (!nh.getParam("Mo", temp)) throw std::ios_base::failure("[SE3_DMP::readParams]: Failed to read \"Mo\" param.");
+  Mo = temp;
+  if (!nh.getParam("Ko", temp)) throw std::ios_base::failure("[SE3_DMP::readParams]: Failed to read \"Ko\" param.");
+  Ko = temp;
+  if (!nh.getParam("Do", temp)) Do = 2*arma::sqrt( Mo % Ko);
+  else Do = temp;
+
+  if (!nh.getParam("Fext_dead_zone", temp)) Fext_dead_zone = arma::vec().zeros(6);
+  else Fext_dead_zone = temp;
+
+  // === DMP stopping params ===
+  if (!nh.getParam("a_force", a_force)) throw std::ios_base::failure("[SE3_DMP::readParams]: Failed to read \"a_force\" param.");
+  if (!nh.getParam("c_force", c_force)) throw std::ios_base::failure("[SE3_DMP::readParams]: Failed to read \"c_force\" param.");
+
+  if (!nh.getParam("a_pos", a_pos)) throw std::ios_base::failure("[SE3_DMP::readParams]: Failed to read \"a_pos\" param.");
+  if (!nh.getParam("c_pos", c_pos)) throw std::ios_base::failure("[SE3_DMP::readParams]: Failed to read \"c_pos\" param.");
+
+  if (!nh.getParam("a_orient", a_orient)) throw std::ios_base::failure("[SE3_DMP::readParams]: Failed to read \"a_orient\" param.");
+  if (!nh.getParam("c_orient", c_orient)) throw std::ios_base::failure("[SE3_DMP::readParams]: Failed to read \"c_orient\" param.");
 }
 
 bool SE3_DMP::loadTrainingData(const std::string &path)
@@ -176,7 +207,7 @@ bool SE3_DMP::loadTrainingData(const std::string &path)
 
   try
   {
-    io_::read_mat(q0, in, true);
+    io_::read_mat(q_start, in, true);
     io_::read_mat(Timed, in, true);
     io_::read_mat(Pd_data, in, true);
     io_::read_mat(dPd_data, in, true);
@@ -257,10 +288,16 @@ bool SE3_DMP::train()
   }
 }
 
+double SE3_DMP::sigmoid(double a, double c, double x) const
+{
+  return 1 / ( 1 + std::exp(a*(x-c)) );
+}
+
 void SE3_DMP::simulate()
 {
   int i_end = Pd_data.n_cols - 1;
 
+  robot->update();
   arma::vec P0 = robot->getTaskPosition();
   arma::vec Q0 = robot->getTaskOrientation();
 
@@ -298,6 +335,16 @@ void SE3_DMP::simulate()
   vRot_data.clear();
   dvRot_data.clear();
 
+  arma::vec P_f = arma::vec().zeros(3);
+  arma::vec dP_f = arma::vec().zeros(3);
+  arma::vec ddP_f = arma::vec().zeros(3);
+
+  arma::vec Q_f = {1, 0, 0, 0};
+  arma::vec Q_f0 = {1, 0, 0, 0};
+  arma::vec vRot_f = arma::vec().zeros(3);
+  arma::vec dvRot_f = arma::vec().zeros(3);
+
+
   // simulate
   while (robot->isOk() && gui->getMode()==MainWindow::RUN_CONTROLLER)
   {
@@ -310,16 +357,47 @@ void SE3_DMP::simulate()
     vRot_data = arma::join_horiz(vRot_data, vRot);
     dvRot_data = arma::join_horiz(dvRot_data, dvRot);
 
+    // Calc admittance
+    arma::vec wrench = robot->getTaskWrench();
+    wrench.subvec(3,5) = arma::vec().zeros(3);
+    arma::vec sign_wrench = arma::sign(wrench);
+    arma::vec Fext = wrench - sign_wrench%Fext_dead_zone;
+    wrench = 0.5*(arma::sign(Fext)+sign_wrench)%arma::abs(Fext);
+
+    ddP_f = ( wrench.subvec(0,2) - Dp%dP_f - Kp%P_f ) / Mp;
+    arma::vec eq_f = quatLog( quatProd(Q_f,quatInv(Q_f0)) );
+    dvRot_f = ( wrench.subvec(3,5) - Do%vRot_f - Ko%eq_f ) / Mo;
+
+    // apply stopping
+    double s_f = sigmoid(a_force, c_force, arma::norm(wrench));
+    double s_p = sigmoid(a_force, c_force, arma::norm(P_f));
+    double s_q = sigmoid(a_force, c_force, arma::norm(eq_f)*180/arma::datum::pi);
+    double ss = s_f*s_p*s_q;
+    // dx *= s_f*s_p*s_q;
+
+    can_clock_ptr->setTau(t_end/ss);
+
     // DMP simulation
     arma::vec Z_c = arma::vec().zeros(3);
     ddP = dmp_p->getAccel(x, P, dP, P0, Pg, Z_c);
     dvRot = dmp_o->getRotAccel(x, Q, vRot, Q0, Qg, Z_c);
 
+    std::cout << "vRot = " << vRot.t() << "\n";
+    std::cout << "dvRot = " << dvRot.t() << "\n";
+    std::cout << "ss = " << ss << "\n";
+
     // Update phase variable
     dx = can_clock_ptr->getPhaseDot(x);
 
+
+
+
     // Stopping criteria
-    if (t>=t_end) break;
+    arma::vec P_robot = robot->getTaskPosition();
+    arma::vec Q_robot = robot->getTaskOrientation();
+    double e_p = arma::norm(P_robot - P);
+    double e_o = arma::norm( quatLog( quatProd(Q_robot, quatInv(Q)) ) )*180/arma::datum::pi;
+    if (t>=t_end && e_p<0.01 && e_o<2) break;
 
     // Numerical integration
     iters++;
@@ -330,7 +408,12 @@ void SE3_DMP::simulate()
     Q = quatProd( quatExp(vRot*dt), Q);
     vRot = vRot + dvRot*dt;
 
-    arma::vec V_cmd = arma::join_vert(dP, vRot);
+    P_f = P_f + dP_f*dt;
+    dP_f = dP_f + ddP_f*dt;
+    Q_f = quatProd( quatExp(vRot_f*dt), Q_f);
+    vRot_f = vRot_f + dvRot_f*dt;
+
+    arma::vec V_cmd = arma::join_vert(dP+dP_f, vRot+vRot_f);
     robot->setTaskVelocity(V_cmd);
     robot->update();
   }
@@ -387,7 +470,7 @@ void SE3_DMP::clearData()
   dvRot_data.clear();
 }
 
-arma::vec SE3_DMP::quatProd(const arma::vec &quat1, const arma::vec &quat2)
+arma::vec SE3_DMP::quatProd(const arma::vec &quat1, const arma::vec &quat2) const
 {
   arma::vec quat12(4);
 
@@ -403,7 +486,7 @@ arma::vec SE3_DMP::quatProd(const arma::vec &quat1, const arma::vec &quat2)
   return quat12;
 }
 
-arma::vec SE3_DMP::quatExp(const arma::vec &v_rot, double zero_tol)
+arma::vec SE3_DMP::quatExp(const arma::vec &v_rot, double zero_tol) const
 {
   arma::vec quat(4);
   double norm_v_rot = arma::norm(v_rot);
@@ -419,4 +502,31 @@ arma::vec SE3_DMP::quatExp(const arma::vec &v_rot, double zero_tol)
   }
 
   return quat;
+}
+
+arma::vec SE3_DMP::quatLog(const arma::vec &quat, double zero_tol) const
+{
+  arma::vec e = quat.subvec(1,3);
+  double n = quat(0);
+
+  if (n > 1) n = 1;
+  if (n < -1) n = -1;
+
+  arma::vec omega(3);
+  double e_norm = arma::norm(e);
+
+  if (e_norm > zero_tol) omega = 2*std::atan2(e_norm,n)*e/e_norm;
+  else omega = arma::vec().zeros(3);
+
+  return omega;
+}
+
+arma::vec SE3_DMP::quatInv(const arma::vec &quat) const
+{
+  arma::vec quatI(4);
+
+  quatI(0) = quat(0);
+  quatI.subvec(1,3) = - quat.subvec(1,3);
+
+  return quatI;
 }

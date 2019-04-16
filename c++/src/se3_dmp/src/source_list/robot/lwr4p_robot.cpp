@@ -65,7 +65,7 @@ void LWR4p_Robot::commandThread()
           jtorque_cmd.set(arma::vec().zeros(N_JOINTS));
           break;
         case CART_VEL_CTRL:
-          robot->setMode(lwr4p::Mode::TORQUE_CONTROL);
+          robot->setMode(lwr4p::Mode::VELOCITY_CONTROL);
           cart_vel_cmd.set(arma::vec().zeros(6));
           break;
         case IDLE:
@@ -91,6 +91,7 @@ void LWR4p_Robot::commandThread()
       case CART_VEL_CTRL:
         J = robot->getRobotJacobian();
         dq = arma::pinv(J)*cart_vel_cmd.get();
+        // std::cerr << "dq = " << dq.t() << "\n";
         robot->setJointVelocity(dq);
         break;
       case Robot::Mode::FREEDRIVE:

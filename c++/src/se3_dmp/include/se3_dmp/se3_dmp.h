@@ -61,6 +61,27 @@ private:
 
   bool controller_finished;
 
+  // === Cartesian spring-damper params ===
+  arma::vec Mp;
+  arma::vec Dp;
+  arma::vec Kp;
+
+  // === Orientation spring-damper params ===
+  arma::vec Mo;
+  arma::vec Do;
+  arma::vec Ko;
+
+  arma::vec Fext_dead_zone;
+
+  // === DMP stopping params ===
+  double a_force;
+  double c_force; // Newton
+  double a_pos;
+  double c_pos; // meters
+  double a_orient;
+  double c_orient; // rads
+  double sigmoid(double a, double c, double x) const;
+
   // training data
   std::string train_data_filename; // name of the file containing the training data
   arma::vec q0;
@@ -94,8 +115,10 @@ private:
   Semaphore start_sem;
   Semaphore finish_sem;
 
-  static arma::vec quatProd(const arma::vec &quat1, const arma::vec &quat2);
-  static arma::vec quatExp(const arma::vec &v_rot, double zero_tol=1e-16);
+  arma::vec quatProd(const arma::vec &quat1, const arma::vec &quat2) const;
+  arma::vec quatExp(const arma::vec &v_rot, double zero_tol=1e-16) const;
+  arma::vec quatLog(const arma::vec &quat, double zero_tol=1e-16) const;
+  arma::vec quatInv(const arma::vec &quat) const;
 
 };
 

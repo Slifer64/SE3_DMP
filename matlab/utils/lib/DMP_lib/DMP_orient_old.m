@@ -89,7 +89,8 @@ classdef DMP_orient_old < handle % : public DMP_
             dy = zeros(3,1);
             
             for i=1:3
-               [dy(i), deta(i), ~] = this.dmp{i}.getStatesDot(x, Y(i), eta(i), Y0(i), Yg(i), y_c(i), z_c(i));
+               this.dmp{i}.calcStatesDot(x, Y(i), eta(i), Y0(i), Yg(i), y_c(i), z_c(i));
+               deta(i) = this.dmp{i}.getDz();
             end
             
             dvRot = deta/tau;

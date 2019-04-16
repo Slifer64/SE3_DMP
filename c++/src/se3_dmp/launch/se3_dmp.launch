@@ -7,7 +7,7 @@
           output="screen" cwd="node">
 
           <rosparam>
-            robot_type: "lwr4p_sim"
+            robot_type: "lwr4p"
 
             train_data_filename: "train_data.bin"
             sim_data_filename: "sim_data.bin"
@@ -18,6 +18,26 @@
             s0: 1.0                         # initial gating value
             send: 0.5                       # terminal gating value
             N_kernels: [60, 60, 60]
+
+            # === Cartesian spring-damper params ===
+            Mp: [4, 4, 4]
+            # Dp: 2*sqrt(Mp*Kd)
+            Kp: [50, 50, 50]
+
+            # === Orientation spring-damper params ===
+            Mo: [1, 1, 1]
+            # Do: 2*sqrt(Mo*Ko)
+            Ko: [10, 10, 10]
+
+            Fext_dead_zone: [1.8, 1.8, 1.8, 1.5, 1.5, 1.5]
+
+            # === DMP stopping params ===
+            a_force: 2
+            c_force: 10 # Newton
+            a_pos: 800
+            c_pos: 0.02 # meters
+            a_orient: 4
+            c_orient: 5 # rads
 
             temp_scale: 1.0
             pose_offset: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]

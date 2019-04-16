@@ -4,7 +4,7 @@ set_matlab_utils_path();
 
 %% Load training data
 
-load('leonidas_data.mat', 'Data');
+load('kuka_data.mat', 'Data');
 
 Timed = Data.Time;
 Pd_data = Data.Pos;
@@ -12,12 +12,12 @@ dPd_data = Data.Vel;
 ddPd_data = Data.Accel;
 
 %% Write data to binary format
-fid = fopen('train_data.bin','w');
-write_mat(Timed, fid, true);
-write_mat(Pd_data, fid, true);
-write_mat(dPd_data, fid, true);
-write_mat(ddPd_data, fid, true);
-fclose(fid);
+% fid = fopen('train_data.bin','w');
+% write_mat(Timed, fid, true);
+% write_mat(Pd_data, fid, true);
+% write_mat(dPd_data, fid, true);
+% write_mat(ddPd_data, fid, true);
+% fclose(fid);
 
 Ts = Timed(2)-Timed(1);
 

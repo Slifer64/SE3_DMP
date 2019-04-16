@@ -8,7 +8,7 @@ addpath('utils/io_lib/');
 addpath('utils/math_lib/');
 
 if (nargin < 1), sim_data_filename = 'exec_data.bin'; end
-if (nargin < 2), train_data_filename = 'train_data.bin'; end
+if (nargin < 2), train_data_filename = 'kuka_train_data.bin'; end
 
 sim_data_filename = ['../data/' sim_data_filename];
 train_data_filename = ['../data/' train_data_filename];
