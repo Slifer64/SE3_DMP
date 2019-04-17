@@ -4,7 +4,7 @@ set_matlab_utils_path();
 
 %% Load training data
 
-load('kuka_data.mat', 'Data');
+load('data/kuka_data.mat', 'Data');
 
 Timed = Data.Time;
 Qd_data = Data.Quat;

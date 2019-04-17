@@ -249,6 +249,7 @@ classdef DMP < handle % : public DMP_
         end
         
         
+        %% Same as @calcStatesDot but with variable argument list.
         function update(this, varargin)
             
             this.y_c = 0;
@@ -271,6 +272,25 @@ classdef DMP < handle % : public DMP_
 
         end
 
+        
+        %% Returns the DMP's acceleration.
+        %  @param[in] y: position.
+        %  @param[in] dy: velocity.
+        %  @param[in] y0: initial position.
+        %  @param[in] y_c: coupling term for the dynamical equation of the \a y state.
+        %  @param[in] z_c: coupling term for the dynamical equation of the \a z state.
+        %  @param[in] x: phase variable.
+        %  @param[in] g: goal.
+        %  @param[in] tau: time scaling.
+        %  @param[out] ddy: DMP's acceleration.
+        function ddy = getAccel(this, x, y, dy, y0, g, z_c)
+            
+            tau = this.getTau();
+            z = dy*tau;
+            this.calcStatesDot(x, y, z, y0, g, 0.0, z_c);
+            ddy = this.getDz()/tau;
+            
+        end
         
         %% Returns the time scale of the DMP.
         %  @param[out] tau: The time scale of the this.
@@ -429,24 +449,7 @@ classdef DMP < handle % : public DMP_
 
         end
         
-        
-        %% Returns the DMP's acceleration.
-        %  @param[in] y: position.
-        %  @param[in] dy: velocity.
-        %  @param[in] y0: initial position.
-        %  @param[in] y_c: coupling term for the dynamical equation of the \a y state.
-        %  @param[in] z_c: coupling term for the dynamical equation of the \a z state.
-        %  @param[in] x: phase variable.
-        %  @param[in] g: goal.
-        %  @param[in] tau: time scaling.
-        %  @param[out] ddy: DMP's acceleration.
-        function ddy = getAccel(this, x, y, dy, y0, g, z_c)
 
-            this.calcStatesDot(x, y, this.getTau()*dy, y0, g, 0.0, z_c);
-            ddy = this.getDz()/this.getTau();
-            
-        end
-        
         function setX(this, x), this.x = x; end
         function setY(this, y), this.y = y; end
         function setZ(this, z), this.z = z; end

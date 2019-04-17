@@ -33,6 +33,10 @@ classdef DMP_orient < handle
         shape_attr_gating_ptr % pointer to gating function for the shape attractor
 
         zero_tol % tolerance value used to avoid divisions with very small numbers
+        
+        dphi % derivative of 'phi' state
+        omega % rotational velocity
+        dx % phase variable derivative
 
     end
 
@@ -130,6 +134,44 @@ classdef DMP_orient < handle
         function dvRot = getRotAccel(this, x, Q, vRot, Q0, Qg, Z_c)
 
             if (nargin < 7), Z_c=zeros(3,1); end
+            
+            tau = this.getTau();
+            phi = vRot*tau;
+            calcStatesDot(this, x, Q, phi, Q0, Qg, zeros(3,1), Z_c);
+            dvRot = this.getDphi()/tau;
+
+%             eqd = zeros(3,1);
+%             vRotd = zeros(3,1);
+%             dvRotd = zeros(3,1);
+%             
+%             for i=1:3
+%                 eqd(i) = this.eq_f{i}.output(x);
+%                 vRotd(i) = this.vRot_f{i}.output(x);
+%                 dvRotd(i) = this.dvRot_f{i}.output(x);
+%             end 
+% 
+%             Qd = this.quatProd( this.quatExp(eqd), this.Qgd );
+%             
+%             tau = this.getTau();
+%             kt = this.tau_d / tau;
+%             ks = this.quatLog( this.quatProd(Qg, this.quatInv(Q0) ) ) ./ this.log_Qgd_invQ0d;
+%             
+%             QQg = this.quatProd(Q,this.quatInv(Qg));
+%             inv_exp_QdQgd = this.quatInv( this.quatExp( ks.* this.quatLog( this.quatProd(Qd,this.quatInv(this.Qgd)) ) ) );
+%             pQerr = this.quatLog( this.quatProd(QQg, inv_exp_QdQgd) );
+%             
+% %             pQerr = quatLog( quatProd( Q, quatProd( quatExp(ks.*quatLog(quatProd(quatInv(Qd), this.Qgd))), quatInv(Qg)) ) );
+%             
+%             dvRot = kt^2*ks.*dvRotd - (this.a_z/tau)*(vRot-kt*ks.*vRotd) - (this.a_z*this.b_z/tau^2) * pQerr + Z_c;
+%             (dvRot-dvRot2)'
+%             pause
+            
+        end
+        
+        function calcStatesDot(this, x, Q, phi, Q0, Qg, Y_c, Z_c)
+
+            if (nargin < 7), Y_c=zeros(3,1); end
+            if (nargin < 8), Z_c=zeros(3,1); end
 
             eqd = zeros(3,1);
             vRotd = zeros(3,1);
@@ -144,19 +186,24 @@ classdef DMP_orient < handle
             Qd = this.quatProd( this.quatExp(eqd), this.Qgd );
             
             tau = this.getTau();
-            kt = this.tau_d / tau;
+            tau_d = this.tau_d;
+            % kt = this.tau_d / tau;
             ks = this.quatLog( this.quatProd(Qg, this.quatInv(Q0) ) ) ./ this.log_Qgd_invQ0d;
             
             QQg = this.quatProd(Q,this.quatInv(Qg));
             inv_exp_QdQgd = this.quatInv( this.quatExp( ks.* this.quatLog( this.quatProd(Qd,this.quatInv(this.Qgd)) ) ) );
             pQerr = this.quatLog( this.quatProd(QQg, inv_exp_QdQgd) );
+            % pQerr = quatLog( quatProd( Q, quatProd( quatExp(ks.*quatLog(quatProd(quatInv(Qd), this.Qgd))), quatInv(Qg)) ) );
             
-%             pQerr = quatLog( quatProd( Q, quatProd( quatExp(ks.*quatLog(quatProd(quatInv(Qd), this.Qgd))), quatInv(Qg)) ) );
-            
-            dvRot = kt^2*ks.*dvRotd - (this.a_z/tau)*(vRot-kt*ks.*vRotd) - (this.a_z*this.b_z/tau^2) * pQerr + Z_c;
-            
+            this.dphi = ( -(this.a_z*this.b_z)*pQerr - this.a_z*phi + tau_d^2*ks.*dvRotd + this.a_z*tau_d*ks.*vRotd + Z_c ) / tau;
+            this.omega = (phi + Y_c) / tau;
+            this.dx = this.phaseDot(x);
+
         end
         
+        function dx = getDx(this), dx=this.dx; end
+        function dphi = getDphi(this), dphi=this.dphi; end
+        function omega = getOmega(this), omega=this.omega; end
 
         %% Returns the time scaling factor.
         %  @return: The time scaling factor.

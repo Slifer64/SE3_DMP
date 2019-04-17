@@ -370,8 +370,8 @@ void SE3_DMP::simulate()
 
     // apply stopping
     double s_f = sigmoid(a_force, c_force, arma::norm(wrench));
-    double s_p = sigmoid(a_force, c_force, arma::norm(P_f));
-    double s_q = sigmoid(a_force, c_force, arma::norm(eq_f)*180/arma::datum::pi);
+    double s_p = sigmoid(a_pos, c_pos, arma::norm(P_f));
+    double s_q = sigmoid(a_orient, c_orient, arma::norm(eq_f)*180/arma::datum::pi);
     double ss = s_f*s_p*s_q;
     // dx *= s_f*s_p*s_q;
 

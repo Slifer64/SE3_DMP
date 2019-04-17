@@ -143,33 +143,66 @@ void DMP_orient::train(dmp_::TRAIN_METHOD train_method, const arma::rowvec &Time
 }
 
 
+void DMP_orient::calcStatesDot(double x, const arma::vec &Q, const arma::vec &phi, const arma::vec &Q0,
+  const arma::vec &Qg, const arma::vec &Y_c, const arma::vec &Z_c)
+{
+  arma::vec eqd(3);
+  arma::vec vRotd(3);
+  arma::vec dvRotd(3);
+  for (int i=0; i<3; i++)
+  {
+    eqd(i) = this->eq_f[i]->output(x);
+    vRotd(i) = this->vRot_f[i]->output(x);
+    dvRotd(i) = this->dvRot_f[i]->output(x);
+  }
+
+  arma::vec Qd = dmp_::quatProd( dmp_::quatExp(eqd), this->Qgd );
+
+  double tau = this->getTau();
+  // double kt = this->tau_d / tau;
+  arma::vec ks = dmp_::quatLog( dmp_::quatProd(Qg, dmp_::quatInv(Q0) ) ) / this->log_Qgd_invQ0d;
+
+  arma::vec QQg = dmp_::quatProd(Q,dmp_::quatInv(Qg));
+  arma::vec inv_exp_QdQgd = dmp_::quatInv( dmp_::quatExp( ks % dmp_::quatLog( dmp_::quatProd(Qd,dmp_::quatInv(this->Qgd)) ) ) );
+  arma::vec pQerr = dmp_::quatLog ( dmp_::quatProd(QQg, inv_exp_QdQgd));
+
+  this->dphi = (-a_z*b_z*pQerr - a_z*phi + std::pow(tau_d,2)*ks%dvRotd + a_z*tau_d*ks%vRotd + Z_c) / tau;
+  this->omega = (phi + Y_c) / tau;
+  this->dx = this->phaseDot(x);
+}
+
 arma::vec DMP_orient::getRotAccel(double x, const arma::vec &Q, const arma::vec &vRot,
             const arma::vec &Q0, const arma::vec &Qg, const arma::vec &Z_c)
 {
+  double tau = this->getTau();
+  arma::vec phi = vRot*tau;
+  calcStatesDot(x, Q, phi, Q0, Qg, arma::vec().zeros(3), Z_c);
+  arma::vec dvRot = this->getDphi() / tau;
+  return dvRot;
 
-    arma::vec eqd(3);
-    arma::vec vRotd(3);
-    arma::vec dvRotd(3);
-    for (int i=0; i<3; i++)
-    {
-        eqd(i) = this->eq_f[i]->output(x);
-        vRotd(i) = this->vRot_f[i]->output(x);
-        dvRotd(i) = this->dvRot_f[i]->output(x);
-    }
+  // arma::vec eqd(3);
+  // arma::vec vRotd(3);
+  // arma::vec dvRotd(3);
+  // for (int i=0; i<3; i++)
+  // {
+  //   eqd(i) = this->eq_f[i]->output(x);
+  //   vRotd(i) = this->vRot_f[i]->output(x);
+  //   dvRotd(i) = this->dvRot_f[i]->output(x);
+  // }
+  //
+  // arma::vec Qd = dmp_::quatProd( dmp_::quatExp(eqd), this->Qgd );
+  //
+  // double tau = this->getTau();
+  // double kt = this->tau_d / tau;
+  // arma::vec ks = dmp_::quatLog( dmp_::quatProd(Qg, dmp_::quatInv(Q0) ) ) / this->log_Qgd_invQ0d;
+  //
+  // arma::vec QQg = dmp_::quatProd(Q,dmp_::quatInv(Qg));
+  // arma::vec inv_exp_QdQgd = dmp_::quatInv( dmp_::quatExp( ks % dmp_::quatLog( dmp_::quatProd(Qd,dmp_::quatInv(this->Qgd)) ) ) );
+  //
+  // arma::vec dvRot = std::pow(kt,2)*ks%dvRotd - (this->a_z/tau)*(vRot-kt*ks%vRotd)
+  //         -(this->a_z*this->b_z/std::pow(tau,2)) * dmp_::quatLog ( dmp_::quatProd(QQg, inv_exp_QdQgd)) + Z_c;
 
-    arma::vec Qd = dmp_::quatProd( dmp_::quatExp(eqd), this->Qgd );
-
-    double tau = this->getTau();
-    double kt = this->tau_d / tau;
-    arma::vec ks = dmp_::quatLog( dmp_::quatProd(Qg, dmp_::quatInv(Q0) ) ) / this->log_Qgd_invQ0d;
-
-    arma::vec QQg = dmp_::quatProd(Q,dmp_::quatInv(Qg));
-    arma::vec inv_exp_QdQgd = dmp_::quatInv( dmp_::quatExp( ks % dmp_::quatLog( dmp_::quatProd(Qd,dmp_::quatInv(this->Qgd)) ) ) );
-
-    arma::vec dvRot = std::pow(kt,2)*ks%dvRotd - (this->a_z/tau)*(vRot-kt*ks%vRotd)
-            -(this->a_z*this->b_z/std::pow(tau,2)) * dmp_::quatLog ( dmp_::quatProd(QQg, inv_exp_QdQgd)) + Z_c;
-
-    return dvRot;
+  // return dvRot;
 }
 
 

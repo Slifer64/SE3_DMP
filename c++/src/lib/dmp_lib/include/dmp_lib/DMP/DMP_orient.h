@@ -56,6 +56,9 @@ public:
               const arma::vec &Q0, const arma::vec &Qg, const arma::vec &Z_c=arma::vec().zeros(3));
 
 
+  void calcStatesDot(double x, const arma::vec &Q, const arma::vec &vRot, const arma::vec &Q0,
+    const arma::vec &Qg, const arma::vec &Y_c=arma::vec().zeros(3), const arma::vec &Z_c=arma::vec().zeros(3));
+
   /** Returns the time scaling factor.
    *  @return: The time scaling factor.
    */
@@ -81,6 +84,10 @@ public:
    */
   double phaseDot(double x) const;
 
+  arma::vec getDphi() const { return this->dphi; }
+  arma::vec getOmega() const { return this->omega; }
+  double getDx() const { return dx; }
+
 private:
 
   arma::vec Qgd; ///< Trained target orientation as unit quaternion.
@@ -100,6 +107,9 @@ private:
 
   double zero_tol; ///< tolerance value used to avoid divisions with very small numbers
 
+  arma::vec dphi; ///< derivative of 'phi' state
+  arma::vec omega; ///< rotational velocity
+  double dx; ///< phase variable derivative
 };
 
 } // namespace as64_

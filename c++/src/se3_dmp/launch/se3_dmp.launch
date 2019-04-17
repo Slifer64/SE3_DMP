@@ -21,7 +21,7 @@
 
             # === Cartesian spring-damper params ===
             Mp: [4, 4, 4]
-            # Dp: 2*sqrt(Mp*Kd)
+            # Dp: 2*sqrt(Mp*Kp)
             Kp: [50, 50, 50]
 
             # === Orientation spring-damper params ===
