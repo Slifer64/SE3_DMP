@@ -70,6 +70,7 @@ private:
   arma::vec Ko;
 
   arma::vec Fext_dead_zone;
+  double a_fext_filt;
 
   // === DMP stopping params ===
   double a_force;

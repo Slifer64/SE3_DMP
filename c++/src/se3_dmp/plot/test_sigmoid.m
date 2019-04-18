@@ -2,7 +2,14 @@ clc;
 close;
 clear;
 
-a = 4;
+% a_force: 2
+% c_force: 5 # Newton
+% a_pos: 700
+% c_pos: 0.02 # meters
+% a_orient: 4
+% c_orient: 5 # rads
+            
+a = 2;
 c = 5;
 
 x = 0:(c/1000):2*c;

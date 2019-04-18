@@ -20,24 +20,26 @@
             N_kernels: [60, 60, 60]
 
             # === Cartesian spring-damper params ===
-            Mp: [4, 4, 4]
-            # Dp: 2*sqrt(Mp*Kp)
-            Kp: [50, 50, 50]
+            Mp: [5, 5, 5]
+            Dp: [60, 60, 60]
+            Kp: [100, 100, 100]
 
             # === Orientation spring-damper params ===
             Mo: [1, 1, 1]
-            # Do: 2*sqrt(Mo*Ko)
+            Do: [6, 6, 6]
             Ko: [10, 10, 10]
 
-            Fext_dead_zone: [1.8, 1.8, 1.8, 1.5, 1.5, 1.5]
+            a_fext_filt: 0.9
+
+            Fext_dead_zone: [0.8, 0.8, 0.8, 0.4, 0.4, 0.4]
 
             # === DMP stopping params ===
-            a_force: 2
-            c_force: 10 # Newton
-            a_pos: 800
+            a_force: 1.5
+            c_force: 5 # Newton
+            a_pos: 450
             c_pos: 0.02 # meters
-            a_orient: 4
-            c_orient: 5 # rads
+            a_orient: 2
+            c_orient: 5 # degress
 
             temp_scale: 1.0
             pose_offset: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]

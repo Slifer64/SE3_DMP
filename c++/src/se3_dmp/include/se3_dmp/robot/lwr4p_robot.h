@@ -45,7 +45,7 @@ public:
     // (const_cast<ati::FTSensor *>(&ftsensor))->getMeasurements(measurements,rdt,ft);
     // //ftsensor.getMeasurements(measurements,rdt,ft);
     //
-    arma::vec Fext(6);
+    // arma::vec Fext(6);
     // Fext(0) = measurements[0];
     // Fext(1) = measurements[1];
     // Fext(2) = measurements[2];
@@ -57,6 +57,7 @@ public:
     // Fext.subvec(0,2) = R*Fext.subvec(0,2);
     // Fext.subvec(3,5) = R*Fext.subvec(3,5);
 
+    arma::vec Fext(6);
     Fext = robot->getExternalWrench();
     Fext = -Fext;
 

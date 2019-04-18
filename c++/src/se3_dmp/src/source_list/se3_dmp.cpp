@@ -184,6 +184,8 @@ void SE3_DMP::readParams()
   if (!nh.getParam("Fext_dead_zone", temp)) Fext_dead_zone = arma::vec().zeros(6);
   else Fext_dead_zone = temp;
 
+  if (!nh.getParam("a_fext_filt", a_fext_filt)) a_fext_filt = 0.0;
+
   // === DMP stopping params ===
   if (!nh.getParam("a_force", a_force)) throw std::ios_base::failure("[SE3_DMP::readParams]: Failed to read \"a_force\" param.");
   if (!nh.getParam("c_force", c_force)) throw std::ios_base::failure("[SE3_DMP::readParams]: Failed to read \"c_force\" param.");
@@ -295,6 +297,8 @@ double SE3_DMP::sigmoid(double a, double c, double x) const
 
 void SE3_DMP::simulate()
 {
+  readParams();
+
   int i_end = Pd_data.n_cols - 1;
 
   robot->update();
@@ -338,7 +342,8 @@ void SE3_DMP::simulate()
   arma::vec Fext = arma::vec().zeros(6);
 
   double t_end = T;
-  can_clock_ptr->setTau(t_end);
+  double t0 = t_end;
+  can_clock_ptr->setTau(t0);
 
   int iters = 0;
   clearData();
@@ -360,8 +365,8 @@ void SE3_DMP::simulate()
     Fext_data = arma::join_horiz(Fext_data, Fext);
 
     // Calc admittance
-    Fext = robot->getTaskWrench();
-    // Fext.subvec(3,5) = arma::vec().zeros(3);
+    arma::vec Fext_raw = robot->getTaskWrench();
+    Fext =  a_fext_filt*Fext + (1-a_fext_filt)*Fext_raw;
     arma::vec sign_Fext = arma::sign(Fext);
     arma::vec Fext2 = Fext - sign_Fext%Fext_dead_zone;
     Fext = 0.5*(arma::sign(Fext2)+sign_Fext)%arma::abs(Fext2);
@@ -370,14 +375,23 @@ void SE3_DMP::simulate()
     arma::vec eq_f = quatLog(Q_f);
     dvRot_f = ( Fext.subvec(3,5) - Do%vRot_f - Ko%eq_f ) / Mo;
 
+    // P_f = P_f + dP_f*dt;
+    // dP_f = dP_f + ddP_f*dt;
+    //
+    // Q_f = quatProd( quatExp(vRot_f*dt), Q_f);
+    // vRot_f = vRot_f + dvRot_f*dt;
+    //
+    // dP_robot = dP_f;
+    // vRot_robot = vRot_f;
+
     // calc stopping
     double s_f = sigmoid(a_force, c_force, arma::norm(Fext));
     double s_p = sigmoid(a_pos, c_pos, arma::norm(P_f));
     double s_q = sigmoid(a_orient, c_orient, arma::norm(eq_f)*180/arma::datum::pi);
-    double ss = s_f*s_p*s_q;
+    double s_tau = s_f*s_p*s_q;
 
     // Update phase variable
-    can_clock_ptr->setTau(t_end/ss);
+    can_clock_ptr->setTau(t0/s_tau);
     dx = can_clock_ptr->getPhaseDot(x);
     double tau = can_clock_ptr->getTau();
 
@@ -388,7 +402,7 @@ void SE3_DMP::simulate()
     // double tau_dot = -ds_tau*tau0/s_tau^2;
 
     // DMP simulation
-    dmp_p->calcStatesDot(x, P, dP, P0, Pg);
+    dmp_p->calcStatesDot(x, P, Z, P0, Pg);
     arma::vec dZ = dmp_p->getDz();
     dP = dmp_p->getDy();
     // ddP = dZ / tau;
@@ -419,13 +433,13 @@ void SE3_DMP::simulate()
     // dvRot_robot = dvRot + dvRot_f;
 
     P_f = P_robot - P;
-    dP_robot = dP + dP_f;
+    dP_f = dP_f + ddP_f*dt;
     Q_f = quatProd( Q_robot, quatInv(Q) );
-    vRot_robot = vRot + vRot_f;
+    vRot_f = vRot_f + dvRot_f*dt;
 
     arma::vec P_real = robot->getTaskPosition();
     arma::vec Q_real = robot->getTaskOrientation();
-    arma::vec V_cmd = arma::join_vert(dP_robot + 2*(P_robot-P_real), vRot_robot + 0.5*quatLog(quatProd(Q_robot,quatInv(Q_real))) );
+    arma::vec V_cmd = arma::join_vert(dP_robot + 0*(P_robot-P_real), vRot_robot + 0.0*quatLog(quatProd(Q_robot,quatInv(Q_real))) );
     robot->setTaskVelocity(V_cmd);
     robot->update();
 
