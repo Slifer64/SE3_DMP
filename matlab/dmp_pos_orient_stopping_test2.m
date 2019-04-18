@@ -1,4 +1,4 @@
-function dmp_pos_orient_stopping_test()
+function dmp_pos_orient_stopping_test2()
 
 set_matlab_utils_path();
 
@@ -98,10 +98,10 @@ x_data = [];
 
 P_robot_data = [];
 dP_robot_data = [];
-% ddP_robot_data = [];
+ddP_robot_data = [];
 Q_robot_data = [];
 vRot_robot_data = [];
-% dvRot_robot_data = [];
+dvRot_robot_data = [];
 
 Fext_data = [];
 
@@ -151,10 +151,10 @@ while (true)
     
     P_robot_data = [P_robot_data P_robot];
     dP_robot_data = [dP_robot_data dP_robot];
-    % ddP_robot_data = [ddP_robot_data ddP_robot];
+    ddP_robot_data = [ddP_robot_data ddP_robot];
     Q_robot_data = [Q_robot_data Q_robot];
     vRot_robot_data = [vRot_robot_data vRot_robot];
-    % dvRot_robot_data = [dvRot_robot_data dvRot_robot];
+    dvRot_robot_data = [dvRot_robot_data dvRot_robot];
     
     Fext_data = [Fext_data Fext];
     
@@ -163,9 +163,9 @@ while (true)
     
     %% admittance
     Fext = getExternalWrench(t);
-    ddP_f = ( Fext(1:3) - Dp.*dP_f - Kp.*P_f ) ./ Mp;
-    eq_f = quatLog(Q_f);
-    dvRot_f = ( Fext(4:6) - Do.*vRot_f - Ko.*eq_f ) ./ Mo;
+    ddP_robot = ddP + ( Fext(1:3) - Dp.*(dP_robot-dP) - Kp.*(P_robot-P) ) ./ Mp;
+    eq_f = quatLog(quatProd(Q_robot, quatInv(Q)));
+    dvRot_robot = dvRot + ( Fext(4:6) - Do.*(vRot_robot - vRot) - Ko.*eq_f ) ./ Mo;
 
     %% apply stopping
     s_f = sigmoid(a_force, c_force, norm(Fext));
@@ -187,15 +187,27 @@ while (true)
     %% DMP simulation
     dmp_p.calcStatesDot(x, P, Z, P0, Pg);
     dZ = dmp_p.getDz();
+    dP_prev = dP;
     dP = dmp_p.getDy();
-    % ddP = dZ / tau;
+    ddP2 = dZ / tau;
+    % ddP = (dP - dP_prev)/dt;
     ddP = (dZ - tau_dot * dP) / tau;
+    
+    abs(ddP - ddP2)
+    pause
     
     dmp_o.calcStatesDot(x, Q, phi, Q0, Qg);
     dphi = dmp_o.getDphi();
+    vRot_prev = vRot;
     vRot = dmp_o.getOmega();
     % dvRot = dphi / tau;
+    % dvRot = (vRot - vRot_prev)/dt;
     dvRot = (dphi - tau_dot * vRot) / tau;
+
+    %% Stopping criteria
+    if (t>=t_end) % && norm(y-g)<5e-3 && norm(dy)<5e-3)
+        break;
+    end
 
     %% Numerical integration
     iters = iters + 1;
@@ -208,24 +220,19 @@ while (true)
     phi = phi + dphi*dt;
     %vRot = vRot + dvRot*dt;
     
-    dP_robot = dP + dP_f;
     P_robot = P_robot + dP_robot*dt;
-    % ddP_robot = ddP_robot + ddP_f;
-    vRot_robot = vRot + vRot_f;
+    dP_robot = dP_robot + ddP_robot*dt;
     Q_robot = quatProd( quatExp(vRot_robot*dt), Q_robot);
-    % dvRot_robot = dvRot + dvRot_f;
+    vRot_robot = vRot_robot + dvRot_robot*dt;
+    % dP_robot = dP + dP_f;
+    % vRot_robot = vRot + vRot_f;
     
     P_f = P_robot - P; 
-    dP_f = dP_f + ddP_f*dt;
+    dP_f = dP_robot - dP;
+    ddP_f = ddP_robot - ddP;
     Q_f = quatProd( Q_robot, quatInv(Q));
-    vRot_f = vRot_f + dvRot_f*dt;
-    
-    %% Stopping criteria
-    P_real = P_robot;
-    Q_real = Q_robot;
-    e_p = norm(P_real - Pg);
-    e_o = norm( quatLog( quatProd(Q_real, quatInv(Qg)) ) )*180/pi;
-    if (x>=1.0 && e_p<0.01 && e_o<2), break; end
+    vRot_f = vRot_robot - vRot;
+    dvRot_f = dvRot_robot - dvRot;
 
 end
 
@@ -283,7 +290,7 @@ Yd_err = [Pd_err_data; Qd_err_data];
 
 fext_labels = {'$f_x$','$f_y$','$f_z$','$\tau_x$','$\tau_y$','$\tau_z$'};
 
-for i=4:size(Y_err,1)
+for i=1:size(Y_err,1)
     figure;
     subplot(3,1,1);
     plot(Time, x_data, 'LineWidth',2.5);

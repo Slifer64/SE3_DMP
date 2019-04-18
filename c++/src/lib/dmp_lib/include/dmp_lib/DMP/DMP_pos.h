@@ -97,7 +97,7 @@ public:
 
   double getDx() const;
   arma::vec getDy() const;
-  arma::vec getdZ() const;
+  arma::vec getDz() const;
 
 private:
 

@@ -36,8 +36,6 @@ private:
 
   void setMode(Robot::Mode mode);
 
-  arma::vec q_start; // start pose
-
   std::string err_msg;
   void setErrMsg(const std::string &msg) { err_msg = msg; }
   std::string getErrMsg() const { return err_msg; }
@@ -84,7 +82,7 @@ private:
 
   // training data
   std::string train_data_filename; // name of the file containing the training data
-  arma::vec q0;
+  arma::vec q_start; // start pose
   arma::rowvec Timed;
   arma::mat Pd_data;
   arma::mat dPd_data;
@@ -97,11 +95,17 @@ private:
   std::string sim_data_filename; // name of the file where the simulation data will be stored
   arma::rowvec Time;
   arma::mat P_data;
-  arma::mat dP_data;
-  arma::mat ddP_data;
+  // arma::mat dP_data;
+  // arma::mat ddP_data;
   arma::mat Q_data;
-  arma::mat vRot_data;
-  arma::mat dvRot_data;
+  // arma::mat vRot_data;
+  // arma::mat dvRot_data;
+  arma::rowvec x_data;
+
+  arma::mat P_robot_data;
+  arma::mat Q_robot_data;
+
+  arma::mat Fext_data;
 
   arma::wall_clock timer;
 

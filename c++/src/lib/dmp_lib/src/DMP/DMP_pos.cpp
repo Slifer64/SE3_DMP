@@ -96,6 +96,6 @@ double DMP_pos::phaseDot(double x) const
 
 double DMP_pos::getDx() const { return this->dx; }
 arma::vec DMP_pos::getDy() const { return this->dY; }
-arma::vec DMP_pos::getdZ() const { return this->dZ; }
+arma::vec DMP_pos::getDz() const { return this->dZ; }
 
 } // namespace as64_
