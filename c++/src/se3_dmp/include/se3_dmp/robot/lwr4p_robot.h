@@ -89,6 +89,7 @@ public:
   bool isOk() const
   { return (robot->isOk() && !ext_stop()); }
 
+  void setJointsTorque(const arma::vec &jtorq) { jtorque_cmd.set(jtorq); }
   void setTaskVelocity(const arma::vec &vel) { cart_vel_cmd.set(vel); }
   bool setJointsTrajectory(const arma::vec &qT, double duration);
 

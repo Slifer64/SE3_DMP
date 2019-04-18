@@ -17,6 +17,7 @@ public:
   /** The control modes that can be applied to the robot. */
   enum Mode
   {
+    JOINT_TORQUE_CONTROL, // joint torque control
     CART_VEL_CTRL, // Cartesian velocity control
     FREEDRIVE, // freedrive mode (or gravity compensation)
     IDLE, // robot is idle and doesn't move
@@ -56,6 +57,7 @@ public:
 
   virtual void commandThread() = 0;
 
+  virtual void setJointsTorque(const arma::vec &jtorq) = 0;
   virtual void setTaskVelocity(const arma::vec &vel) = 0;
 
   virtual bool setJointsTrajectory(const arma::vec &qT, double duration) = 0;

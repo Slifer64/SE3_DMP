@@ -58,6 +58,10 @@ void LWR4p_Sim_Robot::commandThread()
     {
       switch (new_mode)
       {
+        case JOINT_TORQUE_CONTROL:
+          // robot->setMode(lwr4p::Mode::TORQUE_CONTROL);
+          jtorque_cmd.set(arma::vec().zeros(N_JOINTS));
+          break;
         case FREEDRIVE:
           // robot->setMode(lwr4p::Mode::TORQUE_CONTROL);
           jtorque_cmd.set(arma::vec().zeros(N_JOINTS));
@@ -87,6 +91,9 @@ void LWR4p_Sim_Robot::commandThread()
     // send command according to current mode
     switch (mode.get())
     {
+      case JOINT_TORQUE_CONTROL:
+        // robot->setJointTorque(jtorque_cmd.get());
+        break;
       case CART_VEL_CTRL:
         J = Jacob;
         dq = arma::pinv(J)*cart_vel_cmd.get();

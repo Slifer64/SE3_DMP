@@ -4,11 +4,12 @@
 
 Robot::Robot()
 {
-  mode_name.resize(4);
-  mode_name[0] = "CART_VEL_CTRL";
-  mode_name[1] = "FREEDRIVE";
-  mode_name[2] = "IDLE";
-  mode_name[3] = "STOPPED";
+  mode_name.resize(5);
+  mode_name[0] = "JOINT_TORQUE_CONTROL";
+  mode_name[1] = "CART_VEL_CTRL";
+  mode_name[2] = "FREEDRIVE";
+  mode_name[3] = "IDLE";
+  mode_name[4] = "STOPPED";
 }
 
 Robot::~Robot()

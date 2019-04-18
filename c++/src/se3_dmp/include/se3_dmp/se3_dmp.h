@@ -30,7 +30,12 @@ private:
   void readParams();
   bool loadTrainingData(const std::string &path);
   bool train();
-  void simulate();
+
+  std::function<void()> simulate;
+  void simulate_CartVelCtrl();
+  void simulate_JointTorqCtrl();
+  Robot::Mode robot_run_ctrl_mode;
+
   bool saveExecData(const std::string &save_path="");
   void clearData();
 

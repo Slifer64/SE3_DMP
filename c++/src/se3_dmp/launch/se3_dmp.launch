@@ -8,6 +8,7 @@
 
           <rosparam>
             robot_type: "lwr4p"
+            robot_run_ctrl_mode: "JOINT_TORQUE_CONTROL" # { "CART_VEL_CTRL", "JOINT_TORQUE_CONTROL" }
 
             train_data_filename: "train_data.bin"
             sim_data_filename: "sim_data.bin"
@@ -22,12 +23,12 @@
             # === Cartesian spring-damper params ===
             Mp: [5, 5, 5]
             Dp: [60, 60, 60]
-            Kp: [100, 100, 100]
+            Kp: [250, 250, 250]
 
             # === Orientation spring-damper params ===
             Mo: [1, 1, 1]
-            Do: [6, 6, 6]
-            Ko: [10, 10, 10]
+            Do: [20, 20, 20]
+            Ko: [30, 30, 30]
 
             a_fext_filt: 0.9
 
