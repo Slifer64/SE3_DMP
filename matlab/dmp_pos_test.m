@@ -8,8 +8,14 @@ load('data/kuka_data.mat', 'Data');
 
 Timed = Data.Time;
 Pd_data = Data.Pos;
+% Pd_data = Pd_data - repmat(Pd_data(:,1),1, size(Pd_data,2));
 dPd_data = Data.Vel;
 ddPd_data = Data.Accel;
+
+% for i=1:size(Pd_data,1)
+%     dPd_data(i,:) = smooth(dPd_data(i,:), 'moving', 10);
+%     ddPd_data(i,:) = smooth(ddPd_data(i,:), 'moving', 10);
+% end
 
 %% Write data to binary format
 % fid = fopen('train_data.bin','w');
@@ -41,7 +47,8 @@ toc
 disp('DMP simulation...');
 tic
 P0 = Pd_data(:,1);
-Pg = Pd_data(:,end);
+Pgd = Pd_data(:,end);
+Pg = P0 + 2*(Pgd - P0);
 T = Timed(end);
 dt = Ts;
 [Time, P_data, dP_data, ddP_data] = simulatePosDMP(dmp_p, P0, Pg, T, dt);

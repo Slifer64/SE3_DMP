@@ -188,12 +188,23 @@ classdef DMP_orient < handle
             tau = this.getTau();
             tau_d = this.tau_d;
             % kt = this.tau_d / tau;
-            ks = this.quatLog( this.quatProd(Qg, this.quatInv(Q0) ) ) ./ this.log_Qgd_invQ0d;
+            ks = ones(3,1); % this.quatLog( this.quatProd(Qg, this.quatInv(Q0) ) ) ./ this.log_Qgd_invQ0d;
             
-            QQg = this.quatProd(Q,this.quatInv(Qg));
-            inv_exp_QdQgd = this.quatInv( this.quatExp( ks.* this.quatLog( this.quatProd(Qd,this.quatInv(this.Qgd)) ) ) );
-            pQerr = this.quatLog( this.quatProd(QQg, inv_exp_QdQgd) );
-            % pQerr = quatLog( quatProd( Q, quatProd( quatExp(ks.*quatLog(quatProd(quatInv(Qd), this.Qgd))), quatInv(Qg)) ) );
+            Qd_s = quatExp( ks.*quatLog(Qd) );
+            Qgd_s = quatExp( ks.*quatLog(this.Qgd) );
+            
+            %% y-g+ks*gd-ks*yd
+            pQerr = quatLog( quatProd( quatProd(Q, quatInv(Qg)), quatProd(Qgd_s, quatInv(Qd_s)) ) );
+            
+            %% (y-ks*yd) - (g-ks*gd)
+%             QQd = quatProd( Q, quatInv(Qd_s) );     
+%             QgQgd = quatProd( Qg, quatInv(Qgd_s) );
+%             pQerr = quatLog( quatProd( QQd, quatInv(QgQgd) ) );
+            
+            %% (y-g) - ks*(yd-gd)
+%             QQg = this.quatProd(Q,this.quatInv(Qg));
+%             inv_exp_QdQgd = this.quatInv( this.quatExp( ks.* this.quatLog( this.quatProd(Qd,this.quatInv(this.Qgd)) ) ) );
+%             pQerr = this.quatLog( this.quatProd(QQg, inv_exp_QdQgd) );
             
             this.dphi = ( -(this.a_z*this.b_z)*pQerr - this.a_z*phi + tau_d^2*ks.*dvRotd + this.a_z*tau_d*ks.*vRotd + Z_c ) / tau;
             this.omega = (phi + Y_c) / tau;
