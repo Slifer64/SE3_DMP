@@ -57,6 +57,19 @@ void SE3_DMP::run()
   q_start = robot->getJointsPosition();
   controller_finished = false;
 
+  readParams();
+
+  if (!train_data_filename.empty())
+  {
+    std::string default_train_data_path = ros::package::getPath("se3_dmp") + "/data/" + train_data_filename;
+    if (loadTrainingData(default_train_data_path))
+    {
+      gui->sendLoadAck(true, "The training data were successfully loaded!");
+      if (train() ) gui->sendTrainAck(true, QString("The model was trained!\n") + getInfoMsg().c_str());
+      else gui->sendTrainAck(false, getErrMsg().c_str());
+    }else gui->sendLoadAck(false, getErrMsg().c_str());
+  }
+
   while (gui->isRunning())
   {
     // =======> Check mode
@@ -72,7 +85,7 @@ void SE3_DMP::run()
       }
       else
       {
-        readParams();
+        // readParams();
         if (robot_run_ctrl_mode == Robot::CART_VEL_CTRL) std::thread(&SE3_DMP::simulate_CartVelCtrl, this).detach();
         else if (robot_run_ctrl_mode == Robot::JOINT_TORQUE_CONTROL) std::thread(&SE3_DMP::simulate_JointTorqCtrl, this).detach();
       }
@@ -166,7 +179,7 @@ void SE3_DMP::readParams()
 
   if (!nh.getParam("robot_type", robot_type)) throw std::ios_base::failure("[SE3_DMP::readParams]: Failed to read \"robot_type\" param.");
 
-  if (!nh.getParam("train_data_filename", train_data_filename)) throw std::ios_base::failure("[SE3_DMP::readParams]: Failed to read \"train_data_filename\" param.");
+  if (!nh.getParam("train_data_filename", train_data_filename)) train_data_filename="";
   if (!nh.getParam("sim_data_filename", sim_data_filename)) throw std::ios_base::failure("[SE3_DMP::readParams]: Failed to read \"sim_data_filename\" param.");
 
   if (!nh.getParam("a_z", a_z)) throw std::ios_base::failure("[SE3_DMP::readParams]: Failed to read \"a_z\" param.");
@@ -345,6 +358,7 @@ void SE3_DMP::simulate_CartVelCtrl()
   arma::vec dP_robot = dP;
   arma::vec ddP_robot = ddP;
   arma::vec Q_robot = Q;
+  arma::vec Q_robot_prev = Q_robot;
   arma::vec vRot_robot = vRot;
   arma::vec dvRot_robot = dvRot;
 
@@ -446,6 +460,8 @@ void SE3_DMP::simulate_CartVelCtrl()
     // ddP_robot = ddP_robot + ddP_f;
     vRot_robot = vRot + vRot_f;
     Q_robot = quatProd( quatExp(vRot_robot*dt), Q_robot);
+    if (arma::dot(Q_robot_prev, Q_robot)<0) Q_robot=-Q_robot;
+    Q_robot_prev = Q_robot;
     // dvRot_robot = dvRot + dvRot_f;
 
     P_f = P_robot - P;
@@ -500,6 +516,7 @@ void SE3_DMP::simulate_JointTorqCtrl()
   arma::vec dP_robot = dP;
   arma::vec ddP_robot = ddP;
   arma::vec Q_robot = Q;
+  arma::vec Q_robot_prev = Q_robot;
   arma::vec vRot_robot = vRot;
   arma::vec dvRot_robot = dvRot;
   arma::vec q_robot_prev = robot->getJointsPosition();;
@@ -517,70 +534,73 @@ void SE3_DMP::simulate_JointTorqCtrl()
   int iters = 0;
   clearData();
 
+  std::string path = ros::package::getPath("se3_dmp") + "/out.txt";
+  std::ofstream out(path, std::ios::out);
+
   // simulate
   while (robot->isOk() && gui->getMode()==MainWindow::RUN_CONTROLLER)
   {
-    // data logging
-    Time = arma::join_horiz(Time, arma::vec({t}));
-    P_data = arma::join_horiz(P_data, P);
-    // dP_data = arma::join_horiz(dP_data, dP);
-    // ddP_data = arma::join_horiz(ddP_data, ddP);
-    Q_data = arma::join_horiz(Q_data, Q);
-    // vRot_data = arma::join_horiz(vRot_data, vRot);
-    // dvRot_data = arma::join_horiz(dvRot_data, dvRot);
-    P_robot_data = arma::join_horiz(P_robot_data, P_robot);
-    Q_robot_data = arma::join_horiz(Q_robot_data, Q_robot);
-    x_data = arma::join_horiz(x_data, arma::vec{x});
-    Fext_data = arma::join_horiz(Fext_data, Fext);
-
-    // Calc admittance
-    arma::vec Fext_raw = robot->getTaskWrench();
-    Fext =  a_fext_filt*Fext + (1-a_fext_filt)*Fext_raw;
-    arma::vec sign_Fext = arma::sign(Fext);
-    arma::vec Fext2 = Fext - sign_Fext%Fext_dead_zone;
-    Fext = 0.5*(arma::sign(Fext2)+sign_Fext)%arma::abs(Fext2);
-
-    // calc stopping
-    double s_f = sigmoid(a_force, c_force, arma::norm(Fext));
-    double s_p = sigmoid(a_pos, c_pos, arma::norm(P_robot-P));
-    double s_q = sigmoid(a_orient, c_orient, arma::norm(eo)*180/arma::datum::pi);
-    double s_tau = s_f*s_p*s_q;
-
-    // Update phase variable
-    can_clock_ptr->setTau(t0/s_tau);
-    dx = can_clock_ptr->getPhaseDot(x);
-    double tau = can_clock_ptr->getTau();
-
-    // double ds_f = sigmoid_dot(a_force, c_force, x)*dx;
-    // double ds_p = sigmoid_dot(a_pos, c_pos, x)*dx;
-    // double ds_q = sigmoid_dot(a_orient, c_orient, x)*dx;
-    // double ds_tau = ds_f*s_p*s_q + s_f*ds_p*s_q + s_f*s_p*ds_q;
-    // double tau_dot = -ds_tau*tau0/s_tau^2;
-
-    // DMP simulation
-    dmp_p->calcStatesDot(x, P, Z, P0, Pg);
-    arma::vec dZ = dmp_p->getDz();
-    dP = dmp_p->getDy();
-    // ddP = dZ / tau;
-    // ddP = (dZ - tau_dot * dP) / tau;
-
-    dmp_o->calcStatesDot(x, Q, phi, Q0, Qg);
-    arma::vec dphi = dmp_o->getDphi();
-    vRot = dmp_o->getOmega();
-    // dvRot = dphi / tau;
-    // dvRot = (dphi - tau_dot * vRot) / tau;
-
-    // Numerical integration
-    iters++;
-    t = t + dt;
-    x = x + dx*dt;
-    P = P + dP*dt;
-    Z = Z + dZ*dt;
-    // dP = dP + ddP*dt;
-    Q = quatProd( quatExp(vRot*dt), Q);
-    phi = phi + dphi*dt;
-    // vRot = vRot + dvRot*dt;
-
+    // // data logging
+    // Time = arma::join_horiz(Time, arma::vec({t}));
+    // P_data = arma::join_horiz(P_data, P);
+    // // dP_data = arma::join_horiz(dP_data, dP);
+    // // ddP_data = arma::join_horiz(ddP_data, ddP);
+    // Q_data = arma::join_horiz(Q_data, Q);
+    // // vRot_data = arma::join_horiz(vRot_data, vRot);
+    // // dvRot_data = arma::join_horiz(dvRot_data, dvRot);
+    // P_robot_data = arma::join_horiz(P_robot_data, P_robot);
+    // Q_robot_data = arma::join_horiz(Q_robot_data, Q_robot);
+    // x_data = arma::join_horiz(x_data, arma::vec{x});
+    // Fext_data = arma::join_horiz(Fext_data, Fext);
+    //
+    // // Calc admittance
+    // arma::vec Fext_raw = robot->getTaskWrench();
+    // Fext =  a_fext_filt*Fext + (1-a_fext_filt)*Fext_raw;
+    // arma::vec sign_Fext = arma::sign(Fext);
+    // arma::vec Fext2 = Fext - sign_Fext%Fext_dead_zone;
+    // Fext = 0.5*(arma::sign(Fext2)+sign_Fext)%arma::abs(Fext2);
+    //
+    // // calc stopping
+    // double s_f = sigmoid(a_force, c_force, arma::norm(Fext));
+    // double s_p = sigmoid(a_pos, c_pos, arma::norm(P_robot-P));
+    // double s_q = sigmoid(a_orient, c_orient, arma::norm(eo)*180/arma::datum::pi);
+    // double s_tau = s_f*s_p*s_q;
+    //
+    // // Update phase variable
+    // can_clock_ptr->setTau(t0/s_tau);
+    // dx = can_clock_ptr->getPhaseDot(x);
+    // double tau = can_clock_ptr->getTau();
+    //
+    // // double ds_f = sigmoid_dot(a_force, c_force, x)*dx;
+    // // double ds_p = sigmoid_dot(a_pos, c_pos, x)*dx;
+    // // double ds_q = sigmoid_dot(a_orient, c_orient, x)*dx;
+    // // double ds_tau = ds_f*s_p*s_q + s_f*ds_p*s_q + s_f*s_p*ds_q;
+    // // double tau_dot = -ds_tau*tau0/s_tau^2;
+    //
+    // // DMP simulation
+    // dmp_p->calcStatesDot(x, P, Z, P0, Pg);
+    // arma::vec dZ = dmp_p->getDz();
+    // dP = dmp_p->getDy();
+    // // ddP = dZ / tau;
+    // // ddP = (dZ - tau_dot * dP) / tau;
+    //
+    // dmp_o->calcStatesDot(x, Q, phi, Q0, Qg);
+    // arma::vec dphi = dmp_o->getDphi();
+    // vRot = dmp_o->getOmega();
+    // // dvRot = dphi / tau;
+    // // dvRot = (dphi - tau_dot * vRot) / tau;
+    //
+    // // Numerical integration
+    // iters++;
+    // t = t + dt;
+    // x = x + dx*dt;
+    // P = P + dP*dt;
+    // Z = Z + dZ*dt;
+    // // dP = dP + ddP*dt;
+    // Q = quatProd( quatExp(vRot*dt), Q);
+    // phi = phi + dphi*dt;
+    // // vRot = vRot + dvRot*dt;
+    //
     q_robot_prev = q_robot;
     q_robot = robot->getJointsPosition();
     arma::vec dq_robot = (q_robot - q_robot_prev) / dt;
@@ -591,10 +611,23 @@ void SE3_DMP::simulate_JointTorqCtrl()
     P_robot = robot->getTaskPosition();
     vRot_robot = Vrobot.subvec(3,5);
     Q_robot = robot->getTaskOrientation();
+    if (arma::dot(Q_robot_prev, Q_robot)<0) Q_robot=-Q_robot;
+    Q_robot_prev = Q_robot;
+
+    P = P0;
+    dP = arma::vec().zeros(3);
+    Q = Q0;
+    vRot = arma::vec().zeros(3);
 
     eo = quatLog( quatProd( Q_robot, quatInv(Q) ) );
     arma::vec u = -Jrobot.submat(0, 0, 2, 6).t() * ( Kp%(P_robot-P) + Dp%(dP_robot-dP)  )
   		           -Jrobot.submat(3, 0, 5, 6).t() * (Ko%eo + Do%(vRot_robot-vRot) );
+
+    out << "e_p " << arma::norm(P_robot-P) << "\n"
+        << "de_p = " << arma::norm(dP_robot-dP) << "\n"
+        << "e_o = " << arma::norm(eo) << "\n"
+        << "de_o = " << arma::norm(vRot_robot-vRot) << "\n"
+        << "u = " << u.t() << "\n";
 
     // std::cout << "u = " << u.t() << "\n";
     robot->setJointsTorque(u);
@@ -605,6 +638,8 @@ void SE3_DMP::simulate_JointTorqCtrl()
     double e_o = arma::norm( quatLog( quatProd(Q_robot, quatInv(Qg)) ) )*180/arma::datum::pi;
     if (x>=1.0 && e_p<0.01 && e_o<2) break;
   }
+
+  out.close();
 
   controller_finished = true;
 }
