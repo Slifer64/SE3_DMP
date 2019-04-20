@@ -162,11 +162,13 @@ void DMP_orient::calcStatesDot(double x, const arma::vec &Q, const arma::vec &ph
   // double kt = this->tau_d / tau;
   arma::vec ks = dmp_::quatLog( dmp_::quatProd(Qg, dmp_::quatInv(Q0) ) ) / this->log_Qgd_invQ0d;
 
-  arma::vec QQg = dmp_::quatProd(Q,dmp_::quatInv(Qg));
-  arma::vec inv_exp_QdQgd = dmp_::quatInv( dmp_::quatExp( ks % dmp_::quatLog( dmp_::quatProd(Qd,dmp_::quatInv(this->Qgd)) ) ) );
-  arma::vec pQerr = dmp_::quatLog ( dmp_::quatProd(QQg, inv_exp_QdQgd));
+  // arma::vec QQg = dmp_::quatProd(Q,dmp_::quatInv(Qg));
+  // arma::vec inv_exp_QdQgd = dmp_::quatInv( dmp_::quatExp( ks % dmp_::quatLog( dmp_::quatProd(Qd,dmp_::quatInv(this->Qgd)) ) ) );
+  // arma::vec eo = dmp_::quatLog ( dmp_::quatProd(QQg, inv_exp_QdQgd));
 
-  this->dphi = (-a_z*b_z*pQerr - a_z*phi + std::pow(tau_d,2)*ks%dvRotd + a_z*tau_d*ks%vRotd + Z_c) / tau;
+  arma::vec eo = dmp_::quatLog( dmp_::quatProd( dmp_::quatProd(Q,dmp_::quatInv(Q0)), dmp_::quatInv(dmp_::quatExp(ks%dmp_::quatLog(dmp_::quatProd(Qd,dmp_::quatInv(Q0d))))) ) );
+
+  this->dphi = (-a_z*b_z*eo - a_z*phi + std::pow(tau_d,2)*ks%dvRotd + a_z*tau_d*ks%vRotd + Z_c) / tau;
   this->omega = (phi + Y_c) / tau;
   this->dx = this->phaseDot(x);
 }

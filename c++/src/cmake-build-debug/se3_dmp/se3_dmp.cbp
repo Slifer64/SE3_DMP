@@ -1,0 +1,645 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="se3_dmp"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\..\opt\;CMake Files\..\..\..\..\..\..\..\opt\ros\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\platform\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\test\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\tools\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\templates\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\em\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\roscpp\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\roscpp\cmake\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\cpp_common\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\cpp_common\cmake\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\message_runtime\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\message_runtime\cmake\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\roscpp_serialization\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\roscpp_serialization\cmake\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\roscpp_traits\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\roscpp_traits\cmake\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\rostime\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\rostime\cmake\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\rosconsole\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\rosconsole\cmake\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\rosgraph_msgs\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\rosgraph_msgs\cmake\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\std_msgs\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\std_msgs\cmake\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\xmlrpcpp\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\xmlrpcpp\cmake\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\roslib\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\roslib\cmake\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\rospack\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\rospack\cmake\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\std_srvs\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\std_srvs\cmake\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\geometry_msgs\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\geometry_msgs\cmake\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\kdl_parser\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\kdl_parser\cmake\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\urdf\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\urdf\cmake\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\rosconsole_bridge\;CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\rosconsole_bridge\cmake\;CMake Files\..\..\..\..\..\..\..\usr\;CMake Files\..\..\..\..\..\..\..\usr\src\;CMake Files\..\..\..\..\..\..\..\usr\src\gtest\;CMake Files\..\..\..\..\..\..\..\usr\src\gtest\cmake\;CMake Files\..\..\..\..\..\..\..\usr\lib\;CMake Files\..\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\;CMake Files\..\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\;CMake Files\..\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\Qt5\;CMake Files\..\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\Qt5Widgets\;CMake Files\..\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\Qt5Gui\;CMake Files\..\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\Qt5Core\;CMake Files\..\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\Qt5PrintSupport\;CMake Files\cmake-build-debug\;CMake Files\cmake-build-debug\catkin\;CMake Files\cmake-build-debug\catkin\catkin_generated\;CMake Files\cmake-build-debug\catkin\catkin_generated\version\;CMake Files\cmake-build-debug\catkin_generated\;CMake Files\cmake-build-debug\catkin_generated\installspace\;CMake Files\cmake-build-debug\lib\;CMake Files\cmake-build-debug\lib\dmp_lib\;CMake Files\cmake-build-debug\lib\dmp_lib\catkin_generated\;CMake Files\cmake-build-debug\lib\io_lib\;CMake Files\cmake-build-debug\lib\io_lib\catkin_generated\;CMake Files\cmake-build-debug\devel\;CMake Files\cmake-build-debug\devel\share\;CMake Files\cmake-build-debug\devel\share\dmp_lib\;CMake Files\cmake-build-debug\devel\share\dmp_lib\cmake\;CMake Files\cmake-build-debug\devel\share\io_lib\;CMake Files\cmake-build-debug\devel\share\io_lib\cmake\;CMake Files\cmake-build-debug\devel\share\lwr4p\;CMake Files\cmake-build-debug\devel\share\lwr4p\cmake\;CMake Files\cmake-build-debug\devel\share\ati_sensor\;CMake Files\cmake-build-debug\devel\share\ati_sensor\cmake\;CMake Files\cmake-build-debug\dmp_orient_test\;CMake Files\cmake-build-debug\dmp_orient_test\catkin_generated\;CMake Files\cmake-build-debug\dmp_pos_test\;CMake Files\cmake-build-debug\dmp_pos_test\catkin_generated\;CMake Files\cmake-build-debug\ft_sensors\;CMake Files\cmake-build-debug\ft_sensors\ati\;CMake Files\cmake-build-debug\ft_sensors\ati\ati_sensor\;CMake Files\cmake-build-debug\ft_sensors\ati\ati_sensor\catkin_generated\;CMake Files\cmake-build-debug\robots\;CMake Files\cmake-build-debug\robots\kuka\;CMake Files\cmake-build-debug\robots\kuka\lwr4p\;CMake Files\cmake-build-debug\robots\kuka\lwr4p\catkin_generated\;CMake Files\cmake-build-debug\se3_dmp\;CMake Files\cmake-build-debug\se3_dmp\catkin_generated\;CMake Files\lib\;CMake Files\lib\dmp_lib\;CMake Files\lib\io_lib\;CMake Files\dmp_orient_test\;CMake Files\dmp_pos_test\;CMake Files\ft_sensors\;CMake Files\ft_sensors\ati\;CMake Files\ft_sensors\ati\ati_sensor\;CMake Files\ft_sensors\ati\ati_sensor\config\;CMake Files\robots\;CMake Files\robots\kuka\;CMake Files\robots\kuka\lwr4p\;CMake Files\robots\kuka\lwr4p\cmake\;CMake Files\se3_dmp\;CMake Files\se3_dmp\resources\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/se3_dmp"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/se3_dmp/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/se3_dmp/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/se3_dmp/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/se3_dmp/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="se3_dmp">
+				<Option output="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/devel/lib/se3_dmp/se3_dmp" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/devel/lib/se3_dmp"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DROS_BUILD_SHARED_LIBS=1"/>
+					<Add option="-DQT_WIDGETS_LIB"/>
+					<Add option="-DQT_GUI_LIB"/>
+					<Add option="-DQT_CORE_LIB"/>
+					<Add option="-DROS_PACKAGE_NAME=&quot;se3_dmp&quot;"/>
+					<Add option="-DROSCONSOLE_BACKEND_LOG4CXX"/>
+					<Add option="-DQT_PRINTSUPPORT_LIB"/>
+					<Add directory="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/se3_dmp"/>
+					<Add directory="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/se3_dmp"/>
+					<Add directory="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/se3_dmp/se3_dmp_autogen/include"/>
+					<Add directory="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/se3_dmp/include"/>
+					<Add directory="/usr/include/eigen3"/>
+					<Add directory="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/lib/dmp_lib/include"/>
+					<Add directory="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/lib/io_lib/include"/>
+					<Add directory="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/robots/kuka/lwr4p/include"/>
+					<Add directory="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/robots/kuka/lwr4p/FRILibrary/include"/>
+					<Add directory="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/ft_sensors/ati/ati_sensor/include"/>
+					<Add directory="/opt/ros/indigo/include"/>
+					<Add directory="/usr/include/qt5"/>
+					<Add directory="/usr/include/qt5/QtCore"/>
+					<Add directory="/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64"/>
+					<Add directory="/usr/include/qt5/QtWidgets"/>
+					<Add directory="/usr/include/qt5/QtGui"/>
+					<Add directory="/usr/include/qt5/QtPrintSupport"/>
+					<Add directory="/usr/include/c++/4.8"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/4.8"/>
+					<Add directory="/usr/include/c++/4.8/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/4.8/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/4.8/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/se3_dmp/Makefile&quot;  VERBOSE=1 se3_dmp"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/se3_dmp/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/se3_dmp/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/se3_dmp/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="se3_dmp/fast">
+				<Option output="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/devel/lib/se3_dmp/se3_dmp" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/devel/lib/se3_dmp"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DROS_BUILD_SHARED_LIBS=1"/>
+					<Add option="-DQT_WIDGETS_LIB"/>
+					<Add option="-DQT_GUI_LIB"/>
+					<Add option="-DQT_CORE_LIB"/>
+					<Add option="-DROS_PACKAGE_NAME=&quot;se3_dmp&quot;"/>
+					<Add option="-DROSCONSOLE_BACKEND_LOG4CXX"/>
+					<Add option="-DQT_PRINTSUPPORT_LIB"/>
+					<Add directory="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/se3_dmp"/>
+					<Add directory="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/se3_dmp"/>
+					<Add directory="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/se3_dmp/se3_dmp_autogen/include"/>
+					<Add directory="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/se3_dmp/include"/>
+					<Add directory="/usr/include/eigen3"/>
+					<Add directory="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/lib/dmp_lib/include"/>
+					<Add directory="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/lib/io_lib/include"/>
+					<Add directory="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/robots/kuka/lwr4p/include"/>
+					<Add directory="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/robots/kuka/lwr4p/FRILibrary/include"/>
+					<Add directory="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/ft_sensors/ati/ati_sensor/include"/>
+					<Add directory="/opt/ros/indigo/include"/>
+					<Add directory="/usr/include/qt5"/>
+					<Add directory="/usr/include/qt5/QtCore"/>
+					<Add directory="/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64"/>
+					<Add directory="/usr/include/qt5/QtWidgets"/>
+					<Add directory="/usr/include/qt5/QtGui"/>
+					<Add directory="/usr/include/qt5/QtPrintSupport"/>
+					<Add directory="/usr/include/c++/4.8"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/4.8"/>
+					<Add directory="/usr/include/c++/4.8/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/4.8/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/4.8/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/se3_dmp/Makefile&quot;  VERBOSE=1 se3_dmp/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/se3_dmp/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/se3_dmp/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/se3_dmp/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="se3_dmp_autogen">
+				<Option working_dir="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/se3_dmp"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/se3_dmp/Makefile&quot;  VERBOSE=1 se3_dmp_autogen"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/se3_dmp/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/se3_dmp/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/se3_dmp/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/se3_dmp/se3_dmp_autogen/3YJK5W5UP7/qrc_resource.cpp">
+			<Option target="se3_dmp"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/se3_dmp/se3_dmp_autogen/3YJK5W5UP7/qrc_resource.cpp.rule">
+			<Option target="se3_dmp"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/se3_dmp/se3_dmp_autogen/mocs_compilation.cpp">
+			<Option target="se3_dmp"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/se3_dmp/include/se3_dmp/gui/mainwindow.cpp">
+			<Option target="se3_dmp"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/se3_dmp/include/se3_dmp/gui/mainwindow.h">
+			<Option target="se3_dmp"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/se3_dmp/include/se3_dmp/gui/qcustomplot.cpp">
+			<Option target="se3_dmp"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/se3_dmp/include/se3_dmp/gui/qcustomplot.h">
+			<Option target="se3_dmp"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/se3_dmp/include/se3_dmp/gui/utils.cpp">
+			<Option target="se3_dmp"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/se3_dmp/include/se3_dmp/gui/utils.h">
+			<Option target="se3_dmp"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/se3_dmp/include/se3_dmp/gui/view_jpos_dialog.cpp">
+			<Option target="se3_dmp"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/se3_dmp/include/se3_dmp/gui/view_jpos_dialog.h">
+			<Option target="se3_dmp"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/se3_dmp/include/se3_dmp/gui/view_pose_dialog.cpp">
+			<Option target="se3_dmp"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/se3_dmp/include/se3_dmp/gui/view_pose_dialog.h">
+			<Option target="se3_dmp"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/se3_dmp/resources/resource.qrc">
+			<Option target="se3_dmp"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/se3_dmp/src/main.cpp">
+			<Option target="se3_dmp"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/se3_dmp/src/source_list/robot/lwr4p_robot.cpp">
+			<Option target="se3_dmp"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/se3_dmp/src/source_list/robot/lwr4p_sim_robot.cpp">
+			<Option target="se3_dmp"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/se3_dmp/src/source_list/robot/robot.cpp">
+			<Option target="se3_dmp"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/se3_dmp/src/source_list/se3_dmp.cpp">
+			<Option target="se3_dmp"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/se3_dmp/src/source_list/utils.cpp">
+			<Option target="se3_dmp"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/package.xml">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/all.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/assert.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/atomic_configure_file.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/catkinConfig-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/catkinConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/catkin_add_env_hooks.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/catkin_destinations.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/catkin_download.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/catkin_generate_environment.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/catkin_install_python.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/catkin_libraries.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/catkin_metapackage.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/catkin_package.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/catkin_package_xml.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/catkin_python_setup.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/catkin_workspace.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/debug_message.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/em_expand.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/empy.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/find_program_required.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/interrogate_setup_dot_py.py">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/legacy.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/list_append_deduplicate.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/list_append_unique.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/list_insert_in_workspace_order.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/python.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/safe_execute_process.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/stamp.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/string_starts_with.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/platform/lsb.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\platform\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/platform/ubuntu.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\platform\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/platform/windows.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\platform\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/test/catkin_download_test_data.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\test\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/test/gtest.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\test\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/test/nosetests.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\test\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/test/tests.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\test\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/tools/doxygen.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\tools\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/tools/libraries.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\tools\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/tools/rt.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\tools\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/templates/_setup_util.py.in">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\templates\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/templates/env.sh.in">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\templates\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/templates/generate_cached_setup.py.in">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\templates\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/templates/order_packages.context.py.in">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\templates\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/templates/pkg.context.pc.in">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\templates\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/templates/pkgConfig-version.cmake.in">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\templates\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/templates/pkgConfig.cmake.in">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\templates\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/templates/rosinstall.in">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\templates\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/templates/setup.bash.in">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\templates\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/templates/setup.sh.in">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\templates\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/templates/setup.zsh.in">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\templates\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/em/order_packages.cmake.em">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\em\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/catkin/cmake/em/pkg.pc.em">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\catkin\cmake\em\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/roscpp/cmake/roscpp-msg-extras.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\roscpp\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/roscpp/cmake/roscppConfig-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\roscpp\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/roscpp/cmake/roscppConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\roscpp\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/cpp_common/cmake/cpp_commonConfig-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\cpp_common\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/cpp_common/cmake/cpp_commonConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\cpp_common\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/message_runtime/cmake/message_runtimeConfig-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\message_runtime\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/message_runtime/cmake/message_runtimeConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\message_runtime\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/roscpp_serialization/cmake/roscpp_serializationConfig-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\roscpp_serialization\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/roscpp_serialization/cmake/roscpp_serializationConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\roscpp_serialization\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/roscpp_traits/cmake/roscpp_traitsConfig-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\roscpp_traits\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/roscpp_traits/cmake/roscpp_traitsConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\roscpp_traits\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/rostime/cmake/rostimeConfig-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\rostime\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/rostime/cmake/rostimeConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\rostime\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/rosconsole/cmake/rosconsole-extras.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\rosconsole\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/rosconsole/cmake/rosconsoleConfig-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\rosconsole\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/rosconsole/cmake/rosconsoleConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\rosconsole\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/rosgraph_msgs/cmake/rosgraph_msgs-msg-extras.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\rosgraph_msgs\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/rosgraph_msgs/cmake/rosgraph_msgsConfig-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\rosgraph_msgs\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/rosgraph_msgs/cmake/rosgraph_msgsConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\rosgraph_msgs\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/std_msgs/cmake/std_msgs-msg-extras.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\std_msgs\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/std_msgs/cmake/std_msgsConfig-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\std_msgs\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/std_msgs/cmake/std_msgsConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\std_msgs\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/xmlrpcpp/cmake/xmlrpcppConfig-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\xmlrpcpp\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/xmlrpcpp/cmake/xmlrpcppConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\xmlrpcpp\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/roslib/cmake/roslib-extras.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\roslib\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/roslib/cmake/roslibConfig-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\roslib\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/roslib/cmake/roslibConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\roslib\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/rospack/cmake/rospackConfig-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\rospack\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/rospack/cmake/rospackConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\rospack\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/std_srvs/cmake/std_srvs-msg-extras.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\std_srvs\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/std_srvs/cmake/std_srvsConfig-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\std_srvs\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/std_srvs/cmake/std_srvsConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\std_srvs\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/geometry_msgs/cmake/geometry_msgs-msg-extras.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\geometry_msgs\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/geometry_msgs/cmake/geometry_msgsConfig-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\geometry_msgs\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/geometry_msgs/cmake/geometry_msgsConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\geometry_msgs\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/kdl_parser/cmake/kdl_parserConfig-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\kdl_parser\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/kdl_parser/cmake/kdl_parserConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\kdl_parser\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/urdf/cmake/urdfConfig-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\urdf\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/urdf/cmake/urdfConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\urdf\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/rosconsole_bridge/cmake/rosconsole_bridgeConfig-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\rosconsole_bridge\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../opt/ros/indigo/share/rosconsole_bridge/cmake/rosconsole_bridgeConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\ros\indigo\share\rosconsole_bridge\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../usr/src/gtest/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\src\gtest\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../usr/src/gtest/cmake/internal_utils.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\src\gtest\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../usr/lib/x86_64-linux-gnu/cmake/Qt5/Qt5Config.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\Qt5\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../usr/lib/x86_64-linux-gnu/cmake/Qt5/Qt5ConfigVersion.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\Qt5\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../usr/lib/x86_64-linux-gnu/cmake/Qt5Widgets/Qt5WidgetsConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\Qt5Widgets\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../usr/lib/x86_64-linux-gnu/cmake/Qt5Widgets/Qt5WidgetsConfigExtras.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\Qt5Widgets\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../usr/lib/x86_64-linux-gnu/cmake/Qt5Widgets/Qt5WidgetsConfigVersion.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\Qt5Widgets\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../usr/lib/x86_64-linux-gnu/cmake/Qt5Widgets/Qt5WidgetsMacros.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\Qt5Widgets\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../usr/lib/x86_64-linux-gnu/cmake/Qt5Gui/Qt5GuiConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\Qt5Gui\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../usr/lib/x86_64-linux-gnu/cmake/Qt5Gui/Qt5GuiConfigExtras.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\Qt5Gui\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../usr/lib/x86_64-linux-gnu/cmake/Qt5Gui/Qt5GuiConfigVersion.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\Qt5Gui\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../usr/lib/x86_64-linux-gnu/cmake/Qt5Core/Qt5CoreConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\Qt5Core\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../usr/lib/x86_64-linux-gnu/cmake/Qt5Core/Qt5CoreConfigExtras.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\Qt5Core\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../usr/lib/x86_64-linux-gnu/cmake/Qt5Core/Qt5CoreConfigExtrasMkspecDir.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\Qt5Core\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../usr/lib/x86_64-linux-gnu/cmake/Qt5Core/Qt5CoreConfigVersion.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\Qt5Core\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../usr/lib/x86_64-linux-gnu/cmake/Qt5Core/Qt5CoreMacros.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\Qt5Core\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../usr/lib/x86_64-linux-gnu/cmake/Qt5PrintSupport/Qt5PrintSupportConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\Qt5PrintSupport\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/../../../../../../../usr/lib/x86_64-linux-gnu/cmake/Qt5PrintSupport/Qt5PrintSupportConfigVersion.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\Qt5PrintSupport\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/catkin/catkin_generated/version/package.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\catkin\catkin_generated\version\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/catkin_generated/order_packages.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\catkin_generated\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/catkin_generated/installspace/_setup_util.py">
+			<Option virtualFolder="CMake Files\cmake-build-debug\catkin_generated\installspace\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/lib/dmp_lib/catkin_generated/package.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\lib\dmp_lib\catkin_generated\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/lib/io_lib/catkin_generated/package.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\lib\io_lib\catkin_generated\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/devel/share/dmp_lib/cmake/dmp_libConfig-version.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\devel\share\dmp_lib\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/devel/share/dmp_lib/cmake/dmp_libConfig.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\devel\share\dmp_lib\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/devel/share/io_lib/cmake/io_libConfig-version.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\devel\share\io_lib\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/devel/share/io_lib/cmake/io_libConfig.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\devel\share\io_lib\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/devel/share/lwr4p/cmake/lwr4pConfig-version.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\devel\share\lwr4p\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/devel/share/lwr4p/cmake/lwr4pConfig.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\devel\share\lwr4p\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/devel/share/ati_sensor/cmake/ati_sensorConfig-version.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\devel\share\ati_sensor\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/devel/share/ati_sensor/cmake/ati_sensorConfig.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\devel\share\ati_sensor\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/dmp_orient_test/catkin_generated/ordered_paths.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\dmp_orient_test\catkin_generated\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/dmp_orient_test/catkin_generated/package.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\dmp_orient_test\catkin_generated\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/dmp_pos_test/catkin_generated/ordered_paths.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\dmp_pos_test\catkin_generated\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/dmp_pos_test/catkin_generated/package.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\dmp_pos_test\catkin_generated\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/ft_sensors/ati/ati_sensor/catkin_generated/ordered_paths.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\ft_sensors\ati\ati_sensor\catkin_generated\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/ft_sensors/ati/ati_sensor/catkin_generated/package.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\ft_sensors\ati\ati_sensor\catkin_generated\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/robots/kuka/lwr4p/catkin_generated/ordered_paths.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\robots\kuka\lwr4p\catkin_generated\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/robots/kuka/lwr4p/catkin_generated/package.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\robots\kuka\lwr4p\catkin_generated\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/se3_dmp/catkin_generated/ordered_paths.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\se3_dmp\catkin_generated\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/se3_dmp/catkin_generated/package.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\se3_dmp\catkin_generated\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/lib/dmp_lib/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\lib\dmp_lib\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/lib/dmp_lib/package.xml">
+			<Option virtualFolder="CMake Files\lib\dmp_lib\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/lib/io_lib/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\lib\io_lib\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/lib/io_lib/package.xml">
+			<Option virtualFolder="CMake Files\lib\io_lib\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/dmp_orient_test/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\dmp_orient_test\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/dmp_orient_test/package.xml">
+			<Option virtualFolder="CMake Files\dmp_orient_test\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/dmp_pos_test/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\dmp_pos_test\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/dmp_pos_test/package.xml">
+			<Option virtualFolder="CMake Files\dmp_pos_test\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/ft_sensors/ati/ati_sensor/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\ft_sensors\ati\ati_sensor\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/ft_sensors/ati/ati_sensor/package.xml">
+			<Option virtualFolder="CMake Files\ft_sensors\ati\ati_sensor\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/ft_sensors/ati/ati_sensor/config/FindXenomai.cmake">
+			<Option virtualFolder="CMake Files\ft_sensors\ati\ati_sensor\config\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/robots/kuka/lwr4p/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\robots\kuka\lwr4p\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/robots/kuka/lwr4p/package.xml">
+			<Option virtualFolder="CMake Files\robots\kuka\lwr4p\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/robots/kuka/lwr4p/cmake/FindFastResearchInterfaceLibrary.cmake">
+			<Option virtualFolder="CMake Files\robots\kuka\lwr4p\cmake\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/se3_dmp/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\se3_dmp\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/se3_dmp/package.xml">
+			<Option virtualFolder="CMake Files\se3_dmp\"/>
+		</Unit>
+		<Unit filename="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/se3_dmp/resources/resource.qrc">
+			<Option virtualFolder="CMake Files\se3_dmp\resources\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

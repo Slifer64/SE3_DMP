@@ -1,0 +1,8 @@
+prefix=/usr/local
+
+Name: dmp_pos_test
+Description: Description of dmp_pos_test
+Version: 0.0.0
+Cflags: -I/usr/local/include
+Libs: -L/usr/local/lib 
+Requires: 

@@ -6,6 +6,8 @@ set_matlab_utils_path();
 
 load('data/leonidas_data.mat', 'Data');
 
+% load('data/orient_data.mat', 'Data');
+
 Timed = Data.Time;
 Qd_data = Data.Quat;
 vRotd_data = Data.RotVel;
@@ -15,10 +17,10 @@ dvRotd_data = Data.RotAccel;
 %     Qd_data(:,j) = quatProd(Qd_data(:,j), quatInv(Qd_data(:,1) ) );
 % end
 
-for i=1:size(vRotd_data,1)
-    for k=1:5, vRotd_data(i,:) = smooth(vRotd_data(i,:), 'moving', 100); end
-    for k=1:5, dvRotd_data(i,:) = smooth(dvRotd_data(i,:), 'moving', 100); end
-end
+% for i=1:size(vRotd_data,1)
+%     for k=1:5, vRotd_data(i,:) = smooth(vRotd_data(i,:), 'moving', 100); end
+%     for k=1:5, dvRotd_data(i,:) = smooth(dvRotd_data(i,:), 'moving', 100); end
+% end
 
 %% Write data to binary format
 % fid = fopen('train_data.bin','w');
@@ -31,11 +33,11 @@ end
 Ts = Timed(2)-Timed(1);
 
 %% initialize DMP
-a_z = 20;
+a_z = 30;
 b_z = a_z/4;
 train_method = DMP_orient.LWR;
 can_clock_ptr = CanonicalClock();
-shape_attr_gat_ptr = SigmoidGatingFunction(1.0, 0.5);
+shape_attr_gat_ptr = SigmoidGatingFunction(1.0, 0.2);
 N_kernels = [60; 60; 60];
 dmp_o = DMP_orient(N_kernels, a_z, b_z, can_clock_ptr, shape_attr_gat_ptr);
 
@@ -62,7 +64,7 @@ Qgd = Qd_data(:,end);
 ks = 0.5;
 e0 = ks*quatLog( quatProd( Qgd, quatInv(Q0) ) );
 Qg = quatProd(quatExp(e0), Q0); %quatExp(1.0*quatLog(Qd_data(:,end)));
-T = Timed(end);
+T = 1.0*Timed(end);
 dt = Ts;
 [Time, Q_data, vRot_data, dvRot_data] = simulateOrientDMP(dmp_o, Q0, Qg, T, dt);
 toc
@@ -72,6 +74,9 @@ tic
 [Time2, Q_data2, vRot_data2, dvRot_data2] = simulateOrientDMP(dmp_o2, Q0, Qg, T, dt);
 toc
 
+
+% Data = struct('Time',Time, 'Quat',Q_data, 'RotVel',vRot_data, 'RotAccel',dvRot_data);
+% save('data/orient_data.mat', 'Data');
 
 %% Plot results
 
@@ -88,7 +93,7 @@ for j=1:size(Pq_data,2)
     Pq_data(:,j) = quatLog( quatProd(Qg, quatInv(Q_data(:,j))) );
 end
 
-Pq_data2 = zeros(3, size(Q_data,2));
+Pq_data2 = zeros(3, size(Q_data2,2));
 for j=1:size(Pq_data2,2)
     Pq_data2(:,j) = quatLog( quatProd(Qg, quatInv(Q_data2(:,j))) );
 end
@@ -105,7 +110,7 @@ for i=1:3
    plot(Timed, ks*Pqd_data(i,:), 'LineWidth', line_width, 'LineStyle','--');
    ylabel(y_labels{i}, 'interpreter','latex', 'fontsize',20);
    axis tight;
-   if (i==1), legend({'proposed DMP', 'classical DMP', 'demo'}, 'interpreter','latex', 'fontsize',16, 'Position',[0.7 0.78 0.27 0.15]); end
+   if (i==1), legend({'new', 'old', 'demo'}, 'interpreter','latex', 'fontsize',16, 'Position',[0.7 0.78 0.27 0.15]); end
    if (i==1), title(['Quaternion error: $e_q = log(Q_g * Q^{-1})$, $\alpha_z = ' num2str(a_z) '$'], 'interpreter','latex', 'fontsize',18); end
    if (i==3), xlabel('time [$s$]', 'interpreter','latex', 'fontsize',17); end
    hold off;

@@ -42,7 +42,8 @@ while (true)
     dx = can_clock_ptr.getPhaseDot(x);
 
     %% Stopping criteria
-    if (t>=t_end) % && norm(y-g)<5e-3 && norm(dy)<5e-3)
+    eo = quatLog( quatProd(Q, quatInv(Qg)) );
+    if (t>=t_end && norm(eo)<0.02) % && norm(y-g)<5e-3 && norm(dy)<5e-3)
         break;
     end
 

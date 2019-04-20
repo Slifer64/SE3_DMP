@@ -263,7 +263,7 @@ if __name__ == '__main__':
             sys.exit(1)
 
         # environment at generation time
-        CMAKE_PREFIX_PATH = '/home/slifer/slifer/Encoding SE(3) motions using DMP/c++/devel;/opt/ros/indigo'.split(';')
+        CMAKE_PREFIX_PATH = '/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/devel;/opt/ros/indigo'.split(';')
         # prepend current workspace if not already part of CPP
         base_path = os.path.dirname(__file__)
         if base_path not in CMAKE_PREFIX_PATH:

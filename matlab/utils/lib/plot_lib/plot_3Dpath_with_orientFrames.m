@@ -1,4 +1,4 @@
-function plot_3Dpath_with_orientFrames(Pos, Quat, varargin)
+function ax = plot_3Dpath_with_orientFrames(Pos, Quat, varargin)
 %% Plots 3D path with frames denoting the orientation at each point.
 %  @param[in] Pos: 3xN matrix with position (x,y,z) at each column.
 %  @param[in] Quat: 4xN matrix with orientation as a unit quaternion at each column.
@@ -19,6 +19,7 @@ function plot_3Dpath_with_orientFrames(Pos, Quat, varargin)
 %  @param[in] numberOfFrames: The number of orientation frames to plot. They will be equally spaced along the path (optional, default = 6).
 %  @param[in] frameScale: The scaling of the orientation frames size (optional, default = 1.0).
 %  @param[in] frameLineWidth: The linewidth of the orientation frame axes (optional, default = 1.0).
+%  @param[in] frameLineStyle: The linestyle of the axes of the orientation frame.
 %  @param[in] frameXAxisColor: The color of the x-axis of the orientation frame in rgb format (optional, default = [1 0 0]).
 %  @param[in] frameYAxisColor: The color of the y-axis of the orientation frame in rgb format (optional, default = [0 1 0]).
 %  @param[in] frameZAxisColor: The color of the z-axis of the orientation frame in rgb format (optional, default = [0 0 1]).
@@ -59,13 +60,13 @@ function plot_3Dpath_with_orientFrames(Pos, Quat, varargin)
 
     
     %% Set axes limits
-    w = max(X) - min(X);
+    w = max(max(X) - min(X), 0.2);
     a = w*0.1;
     ax.XLim = [min(X)-a max(X)+a];
-    w = max(Y) - min(Y);
+    w = max(max(Y) - min(Y), 0.2);
     a = w*0.1;
     ax.YLim = [min(Y)-a max(Y)+a];
-    w = max(Z) - min(Z);
+    w = max(max(Z) - min(Z), 0.2);
     a = w*0.1;
     ax.ZLim = [min(Z)-a max(Z)+a];
     
@@ -118,7 +119,7 @@ function plot_3Dpath_with_orientFrames(Pos, Quat, varargin)
     for j=1:3
         quiv{j} = quiver3(ax, 0,0,0,0,0,0, inArgs.FrameScale);
         quiv{j}.Color = axis_colors{j};
-        quiv{j}.LineStyle = '-';
+        quiv{j}.LineStyle = inArgs.FrameLineStyle;
         quiv{j}.LineWidth = inArgs.FrameLineWidth;    
         quiv{j}.AutoScale = 'on';
     end
@@ -266,6 +267,8 @@ function [inArgs, usingDefaults, unmatchedNames] = parseInputArguments(varargin)
     inPars.addParameter('NumberOfFrames', 6, @(x)assert_numeric_scalar_positive(x));
     inPars.addParameter('FrameScale', 1.0, @(x)assert_numeric_scalar_nonnegative(x));
     inPars.addParameter('FrameLineWidth', 1.0, @(x)assert_numeric_scalar_positive(x));
+    inPars.addParameter('FrameLineStyle', '-', @(x)assert_string(x));
+    
     inPars.addParameter('FrameXAxisColor', [1.0 0.0 0.0], @(x)assert_rgbColor(x));
     inPars.addParameter('FrameYAxisColor', [0.0 1.0 0.0], @(x)assert_rgbColor(x));
     inPars.addParameter('FrameZAxisColor', [0.0 0.0 1.0], @(x)assert_rgbColor(x));

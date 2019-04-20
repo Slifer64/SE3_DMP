@@ -3,6 +3,7 @@
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
     <generated>
       <config projectName="Project" targetName="download_extra_data" />
+      <config projectName="Project" targetName="se3_dmp" />
       <config projectName="Project" targetName="roscpp_generate_messages_py" />
       <config projectName="Project" targetName="run_tests" />
       <config projectName="Project" targetName="std_srvs_generate_messages_cpp" />
@@ -11,11 +12,13 @@
       <config projectName="Project" targetName="std_msgs_generate_messages_cpp" />
       <config projectName="Project" targetName="clean_test_results" />
       <config projectName="Project" targetName="ft_sensor_node" />
+      <config projectName="Project" targetName="se3_dmp_autogen" />
       <config projectName="Project" targetName="std_msgs_generate_messages_lisp" />
       <config projectName="Project" targetName="gtest" />
-      <config projectName="Project" targetName="math-lib" />
       <config projectName="Project" targetName="lwr4p" />
+      <config projectName="Project" targetName="dmp_pos_test" />
       <config projectName="Project" targetName="geometry_msgs_generate_messages_cpp" />
+      <config projectName="Project" targetName="io_lib" />
       <config projectName="Project" targetName="gauge_bias_tester" />
       <config projectName="Project" targetName="rosgraph_msgs_generate_messages_cpp" />
       <config projectName="Project" targetName="rosgraph_msgs_generate_messages_lisp" />
@@ -25,13 +28,13 @@
       <config projectName="Project" targetName="gtest_main" />
       <config projectName="Project" targetName="rosgraph_msgs_generate_messages_py" />
       <config projectName="Project" targetName="std_msgs_generate_messages_py" />
-      <config projectName="Project" targetName="dmp-lib" />
       <config projectName="Project" targetName="doxygen" />
       <config projectName="Project" targetName="tests" />
+      <config projectName="Project" targetName="dmp_lib" />
       <config projectName="Project" targetName="roscpp_generate_messages_lisp" />
       <config projectName="Project" targetName="_catkin_empty_exported_target" />
+      <config projectName="Project" targetName="dmp_orient_test" />
       <config projectName="Project" targetName="std_srvs_generate_messages_py" />
-      <config projectName="Project" targetName="io-lib" />
       <config projectName="Project" targetName="simple_reader_test" />
     </generated>
   </component>
@@ -41,7 +44,10 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7c5e62db-bb22-49ec-8ec6-f83e8dde17c6" name="Default Changelist" comment="" />
+    <list default="true" id="7c5e62db-bb22-49ec-8ec6-f83e8dde17c6" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/dmp_lib/src/DMP/DMP_orient.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/lib/dmp_lib/src/DMP/DMP_orient.cpp" afterDir="false" />
+    </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -54,27 +60,23 @@
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="FileEditorManager">
-    <leaf>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/lib/dmp_lib/include/dmp_lib/DMP/WSoG.h">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/lib/dmp_lib/include/dmp_lib/DMP/DMP_orient.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="679">
-              <caret line="69" column="56" selection-start-line="69" selection-start-column="56" selection-end-line="69" selection-end-column="56" />
-              <folding>
-                <element signature="e#136#721#0" />
-                <element signature="e#948#1017#0" />
-              </folding>
-            </state>
+            <state relative-caret-position="-1989" />
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/lib/dmp_lib/include/dmp_lib/DMP/DMP.h">
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/lib/dmp_lib/src/DMP/DMP_orient.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="305">
-              <caret line="224" selection-start-line="224" selection-end-line="224" selection-end-column="20" />
+            <state relative-caret-position="559">
+              <caret line="170" column="27" selection-start-line="170" selection-start-column="27" selection-end-line="170" selection-end-column="27" />
               <folding>
-                <element signature="e#79#95#0" expanded="true" />
+                <element signature="e#56#1342#0" />
+                <element signature="e#1363#2420#0" />
+                <element signature="e#2423#3827#0" />
               </folding>
             </state>
           </provider>
@@ -100,6 +102,7 @@
       <list>
         <option value="$PROJECT_DIR$/dmp_kf/src/source_list/dmp_kf.cpp" />
         <option value="$PROJECT_DIR$/lib/dmp_lib/include/dmp_lib/DMP/WSoG.h" />
+        <option value="$PROJECT_DIR$/lib/dmp_lib/src/DMP/DMP_orient.cpp" />
       </list>
     </option>
   </component>
@@ -115,7 +118,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -185,25 +187,17 @@
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="DMP" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="src" type="b2602c69:ProjectViewProjectNode" />
-              <item name="src" type="47feb1d3:ProjectViewModuleNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="lib" type="462c0819:PsiDirectoryNode" />
-              <item name="dmp_lib" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="GatingFunction" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../ros_packages/src" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="settings.editor.selected.configurable" value="preferences.fileTypes" />
@@ -236,7 +230,17 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="dmp-lib" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="dmp-lib" CONFIG_NAME="Debug">
+    <configuration name="dmp_lib" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="dmp_lib" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="dmp_orient_test" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="dmp_orient_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="Project" RUN_TARGET_NAME="dmp_orient_test">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="dmp_pos_test" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="dmp_pos_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="Project" RUN_TARGET_NAME="dmp_pos_test">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -286,17 +290,12 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="io-lib" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="io-lib" CONFIG_NAME="Debug">
+    <configuration name="io_lib" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="io_lib" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
     <configuration name="lwr4p" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="lwr4p" CONFIG_NAME="Debug">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="math-lib" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="math-lib" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -332,6 +331,16 @@
       </method>
     </configuration>
     <configuration name="run_tests" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="run_tests" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="se3_dmp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="se3_dmp" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="Project" RUN_TARGET_NAME="se3_dmp">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="se3_dmp_autogen" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="se3_dmp_autogen" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -382,7 +391,10 @@
       <item itemvalue="CMake Application.doxygen" />
       <item itemvalue="CMake Application.run_tests" />
       <item itemvalue="CMake Application.tests" />
+      <item itemvalue="CMake Application.dmp_orient_test" />
       <item itemvalue="CMake Application._catkin_empty_exported_target" />
+      <item itemvalue="CMake Application.dmp_lib" />
+      <item itemvalue="CMake Application.io_lib" />
       <item itemvalue="CMake Application.geometry_msgs_generate_messages_cpp" />
       <item itemvalue="CMake Application.geometry_msgs_generate_messages_lisp" />
       <item itemvalue="CMake Application.geometry_msgs_generate_messages_py" />
@@ -395,6 +407,7 @@
       <item itemvalue="CMake Application.std_msgs_generate_messages_cpp" />
       <item itemvalue="CMake Application.std_msgs_generate_messages_lisp" />
       <item itemvalue="CMake Application.std_msgs_generate_messages_py" />
+      <item itemvalue="CMake Application.dmp_pos_test" />
       <item itemvalue="CMake Application.ati_sensor" />
       <item itemvalue="CMake Application.ft_sensor_node" />
       <item itemvalue="CMake Application.gauge_bias_tester" />
@@ -402,10 +415,9 @@
       <item itemvalue="CMake Application.std_srvs_generate_messages_cpp" />
       <item itemvalue="CMake Application.std_srvs_generate_messages_lisp" />
       <item itemvalue="CMake Application.std_srvs_generate_messages_py" />
-      <item itemvalue="CMake Application.dmp-lib" />
-      <item itemvalue="CMake Application.io-lib" />
-      <item itemvalue="CMake Application.math-lib" />
       <item itemvalue="CMake Application.lwr4p" />
+      <item itemvalue="CMake Application.se3_dmp" />
+      <item itemvalue="CMake Application.se3_dmp_autogen" />
       <item itemvalue="CMake Application.gtest" />
       <item itemvalue="CMake Application.gtest_main" />
     </list>
@@ -427,16 +439,18 @@
       <workItem from="1555180129523" duration="501000" />
       <workItem from="1555180682366" duration="3000" />
       <workItem from="1555180702074" duration="1406000" />
+      <workItem from="1555754536988" duration="964000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="2950000" />
+    <option name="totallyTimeSpent" value="3914000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="66" y="-11" width="1855" height="1092" extended-state="6" />
+    <frame x="67" y="-4" width="1853" height="1084" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.20088544" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.20309906" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -447,7 +461,7 @@
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Database Changes" order="7" />
-      <window_info anchor="bottom" id="Terminal" order="8" visible="true" weight="0.401631" />
+      <window_info anchor="bottom" id="Terminal" order="8" weight="0.7054027" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="10" weight="0.3282365" />
       <window_info anchor="bottom" id="CMake" order="11" weight="0.49745157" />
@@ -462,9 +476,16 @@
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/dmp_kf/src/source_list/dmp_kf.cpp" />
+    <entry file="file://$PROJECT_DIR$/lib/dmp_lib/include/dmp_lib/DMP/WSoG.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="579">
+          <caret line="69" column="56" selection-start-line="69" selection-start-column="56" selection-end-line="69" selection-end-column="56" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/lib/dmp_lib/include/dmp_lib/DMP/DMP.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="305">
+        <state relative-caret-position="507">
           <caret line="224" selection-start-line="224" selection-end-line="224" selection-end-column="20" />
           <folding>
             <element signature="e#79#95#0" expanded="true" />
@@ -472,13 +493,19 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/dmp_lib/include/dmp_lib/DMP/WSoG.h">
+    <entry file="file://$PROJECT_DIR$/lib/dmp_lib/include/dmp_lib/DMP/DMP_orient.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="679">
-          <caret line="69" column="56" selection-start-line="69" selection-start-column="56" selection-end-line="69" selection-end-column="56" />
+        <state relative-caret-position="-1989" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/dmp_lib/src/DMP/DMP_orient.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="559">
+          <caret line="170" column="27" selection-start-line="170" selection-start-column="27" selection-end-line="170" selection-end-column="27" />
           <folding>
-            <element signature="e#136#721#0" />
-            <element signature="e#948#1017#0" />
+            <element signature="e#56#1342#0" />
+            <element signature="e#1363#2420#0" />
+            <element signature="e#2423#3827#0" />
           </folding>
         </state>
       </provider>

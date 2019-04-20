@@ -67,8 +67,8 @@ set(lwr4p_CONFIG_INCLUDED TRUE)
 
 # set variables for source/devel/install prefixes
 if("FALSE" STREQUAL "TRUE")
-  set(lwr4p_SOURCE_PREFIX /home/slifer/slifer/Encoding SE(3) motions using DMP/c++/src/robots/kuka/lwr4p)
-  set(lwr4p_DEVEL_PREFIX /home/slifer/slifer/Encoding SE(3) motions using DMP/c++/src/cmake-build-debug/devel)
+  set(lwr4p_SOURCE_PREFIX /home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/robots/kuka/lwr4p)
+  set(lwr4p_DEVEL_PREFIX /home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/devel)
   set(lwr4p_INSTALL_PREFIX "")
   set(lwr4p_PREFIX ${lwr4p_DEVEL_PREFIX})
 else()
@@ -122,7 +122,7 @@ foreach(library ${libraries})
     set(lib_path "")
     set(lib "${library}-NOTFOUND")
     # since the path where the library is found is returned we have to iterate over the paths manually
-    foreach(path /usr/local/lib;/home/slifer/slifer/Encoding SE(3) motions using DMP/c++/devel/lib;/opt/ros/indigo/lib)
+    foreach(path /usr/local/lib;/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/devel/lib;/opt/ros/indigo/lib)
       find_library(lib ${library}
         PATHS ${path}
         NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)

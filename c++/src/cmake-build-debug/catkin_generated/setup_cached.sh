@@ -7,8 +7,8 @@
 # new environment variables
 
 # modified environment variables
-export CMAKE_PREFIX_PATH="/home/slifer/slifer/Encoding SE(3) motions using DMP/c++/src/cmake-build-debug/devel:$CMAKE_PREFIX_PATH"
-export LD_LIBRARY_PATH="/home/slifer/slifer/Encoding SE(3) motions using DMP/c++/src/cmake-build-debug/devel/lib:$LD_LIBRARY_PATH"
-export PKG_CONFIG_PATH="/home/slifer/slifer/Encoding SE(3) motions using DMP/c++/src/cmake-build-debug/devel/lib/pkgconfig:$PKG_CONFIG_PATH"
-export ROSLISP_PACKAGE_DIRECTORIES="/home/slifer/slifer/Encoding SE(3) motions using DMP/c++/src/cmake-build-debug/devel/share/common-lisp:$ROSLISP_PACKAGE_DIRECTORIES"
-export ROS_PACKAGE_PATH="/home/slifer/slifer/Encoding SE(3) motions using DMP/c++/src:$ROS_PACKAGE_PATH"
+export CMAKE_PREFIX_PATH="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/devel:$CMAKE_PREFIX_PATH"
+export LD_LIBRARY_PATH="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/devel/lib:$LD_LIBRARY_PATH"
+export PKG_CONFIG_PATH="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/devel/lib/pkgconfig:$PKG_CONFIG_PATH"
+export ROSLISP_PACKAGE_DIRECTORIES="/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src/cmake-build-debug/devel/share/common-lisp:$ROSLISP_PACKAGE_DIRECTORIES"
+export ROS_PACKAGE_PATH="/home/slifer/slifer/Encoding SE(3) motions using DMP/c++/src:/home/slifer/slifer/Encoding_SE3_motions_using_DMP/SE3_DMP/c++/src:$ROS_PACKAGE_PATH"
