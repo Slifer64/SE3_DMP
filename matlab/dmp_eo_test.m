@@ -1,26 +1,16 @@
-function dmp_orient_test()
+function dmp_eo_test()
 
 set_matlab_utils_path();
 
 %% Load training data
 
 load('data/leonidas_data.mat', 'Data');
-
 % load('data/orient_data.mat', 'Data');
 
 Timed = Data.Time;
 Qd_data = Data.Quat;
 vRotd_data = Data.RotVel;
 dvRotd_data = Data.RotAccel;
-
-% for j=1:size(Qd_data,2)
-%     Qd_data(:,j) = quatProd(Qd_data(:,j), quatInv(Qd_data(:,1) ) );
-% end
-
-% for i=1:size(vRotd_data,1)
-%     for k=1:5, vRotd_data(i,:) = smooth(vRotd_data(i,:), 'moving', 100); end
-%     for k=1:5, dvRotd_data(i,:) = smooth(dvRotd_data(i,:), 'moving', 100); end
-% end
 
 %% Write data to binary format
 % fid = fopen('train_data.bin','w');
@@ -37,11 +27,11 @@ a_z = 30;
 b_z = a_z/4;
 train_method = DMP_orient.LWR;
 can_clock_ptr = CanonicalClock();
-shape_attr_gat_ptr = SigmoidGatingFunction(1.0, 0.2);
+shape_attr_gat_ptr = SigmoidGatingFunction(1.0, 0.5);
 N_kernels = [60; 60; 60];
-dmp_o = DMP_orient(N_kernels, a_z, b_z, can_clock_ptr, shape_attr_gat_ptr);
+dmp_o = DMP_eo(N_kernels, a_z, b_z, can_clock_ptr, shape_attr_gat_ptr);
 
-disp('Orient DMP training...')
+disp('DMP eo training...')
 tic
 offline_train_mse = dmp_o.train(train_method, Timed, Qd_data, vRotd_data, dvRotd_data);
 offline_train_mse
@@ -61,19 +51,18 @@ disp('DMP simulation...');
 tic
 Q0 = Qd_data(:,1);
 Qgd = Qd_data(:,end);
-ks = 1.5;
+ks = 1.0;
 e0 = ks*quatLog( quatProd( Qgd, quatInv(Q0) ) );
 Qg = quatProd(quatExp(e0), Q0); %quatExp(1.0*quatLog(Qd_data(:,end)));
 T = 1.0*Timed(end);
 dt = Ts;
-[Time, Q_data, vRot_data, dvRot_data] = simulateOrientDMP(dmp_o, Q0, Qg, T, dt);
+[Time, Q_data, vRot_data, dvRot_data] = simulateDMPeo(dmp_o, Q0, Qg, T, dt);
 toc
 
 disp('DMP old simulation...');
 tic
 [Time2, Q_data2, vRot_data2, dvRot_data2] = simulateOrientDMP(dmp_o2, Q0, Qg, T, dt);
 toc
-
 
 % Data = struct('Time',Time, 'Quat',Q_data, 'RotVel',vRot_data, 'RotAccel',dvRot_data);
 % save('data/orient_data.mat', 'Data');

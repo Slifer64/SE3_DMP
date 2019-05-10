@@ -200,14 +200,14 @@ classdef DMP < handle % : public DMP_
             else
                 error('[DMP::train]: Unsopported training method...');
             end
-
-            F = zeros(size(Fd));
-            for i=1:size(F,2)
-                F(i) = this.calcLearnedFd(x(i), y0, g);
+            
+            if (nargout > 0)
+                F = zeros(size(Fd));
+                for i=1:size(F,2)
+                    F(i) = this.calcLearnedFd(x(i), y0, g);
+                end
+                train_error = norm(F-Fd)/length(F);
             end
-
-            train_error = norm(F-Fd)/length(F);
-
         end
         
         

@@ -139,32 +139,6 @@ classdef DMP_orient < handle
             phi = vRot*tau;
             calcStatesDot(this, x, Q, phi, Q0, Qg, zeros(3,1), Z_c);
             dvRot = this.getDphi()/tau;
-
-%             eqd = zeros(3,1);
-%             vRotd = zeros(3,1);
-%             dvRotd = zeros(3,1);
-%             
-%             for i=1:3
-%                 eqd(i) = this.eq_f{i}.output(x);
-%                 vRotd(i) = this.vRot_f{i}.output(x);
-%                 dvRotd(i) = this.dvRot_f{i}.output(x);
-%             end 
-% 
-%             Qd = this.quatProd( this.quatExp(eqd), this.Qgd );
-%             
-%             tau = this.getTau();
-%             kt = this.tau_d / tau;
-%             ks = this.quatLog( this.quatProd(Qg, this.quatInv(Q0) ) ) ./ this.log_Qgd_invQ0d;
-%             
-%             QQg = this.quatProd(Q,this.quatInv(Qg));
-%             inv_exp_QdQgd = this.quatInv( this.quatExp( ks.* this.quatLog( this.quatProd(Qd,this.quatInv(this.Qgd)) ) ) );
-%             eo = this.quatLog( this.quatProd(QQg, inv_exp_QdQgd) );
-%             
-% %             eo = quatLog( quatProd( Q, quatProd( quatExp(ks.*quatLog(quatProd(quatInv(Qd), this.Qgd))), quatInv(Qg)) ) );
-%             
-%             dvRot = kt^2*ks.*dvRotd - (this.a_z/tau)*(vRot-kt*ks.*vRotd) - (this.a_z*this.b_z/tau^2) * eo + Z_c;
-%             (dvRot-dvRot2)'
-%             pause
             
         end
         
@@ -191,8 +165,8 @@ classdef DMP_orient < handle
             Q0d = this.Q0d;
             % kt = this.tau_d / tau;
             
-%             ks = ones(3,1);
             ks = this.quatLog( this.quatProd(Qg, this.quatInv(Q0) ) ) ./ this.log_Qgd_invQ0d;
+            % ks = ones(3,1);
             
             Qd_s = quatExp( ks.*quatLog(Qd) );
             Qgd_s = quatExp( ks.*quatLog(Qgd) );
@@ -215,7 +189,11 @@ classdef DMP_orient < handle
 %             eo = ks .* quatLog( quatProd( quatProd(Q,quatInv(Qg)), quatProd(Qgd,quatInv(Qd)) ) );
 
             %% (y - y0) - ks*(yd - y0d)
-            eo = quatLog( quatProd( quatProd(Q,quatInv(Q0)), quatInv(quatExp(ks.*quatLog(quatProd(Qd,quatInv(Q0d))))) ) );
+%             eo = quatLog( quatProd( quatProd(Q,quatInv(Q0)), quatInv(quatExp(ks.*quatLog(quatProd(Qd,quatInv(Q0d))))) ) );
+            DQ = quatProd(Qd,quatInv(Q0d));
+            DQs = quatExp(ks.*quatLog(DQ));
+            Qds = quatProd(DQs,Q0);
+            eo = quatLog( quatProd(Q, quatInv(Qds) ) );
 %             eo = quatLog(quatProd(Q,quatInv(Qd)));
             
             %% (y-ks*yd) - (g-ks*gd)
@@ -230,6 +208,14 @@ classdef DMP_orient < handle
 
             %% -log(Qg*Q^{-1}) + log(Qgd*Qd^{-1}) 
 %             eo = -quatLog(quatProd(Qg,quatInv(Q))) + ks.*quatLog(quatProd(Qgd,quatInv(Qd)));
+
+%             eqd2 = zeros(3,1);    
+%             for i=1:3, eqd(i) = this.eq_f{i}.output(x+0.01); end 
+%             Qd2 = this.quatProd( this.quatExp(eqd2), this.Qgd );
+%             
+%             v = quatLog( quatProd(Qd2, quatInv(Qd)) );
+%             v2 = quatLog( quatProd( quatExp(ks.*quatLog(quatProd(Qd2,quatInv(Q0d)))), quatExp(ks.*quatLog(quatProd(Qd,quatInv(Q0d)))) ) );
+%             ks = v2./v;
    
             this.dphi = ( -(this.a_z*this.b_z)*eo - this.a_z*phi + tau_d^2*ks.*dvRotd + this.a_z*tau_d*ks.*vRotd + Z_c ) / tau;
             this.omega = (phi + Y_c) / tau;

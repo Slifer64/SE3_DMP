@@ -6,8 +6,6 @@
 classdef DMP_eo < handle
     
     properties (Constant)
-        
-          %% enum ARGUMENT
           
           %% enum TRAIN_METHOD
           LWR = 201;
@@ -22,8 +20,8 @@ classdef DMP_eo < handle
         can_clock_ptr % handle (pointer) to the canonical clock
         shape_attr_gating_ptr % pointer to gating function for the shape attractor
         
-        ddeo % second derivative of the orientation error
-        deo % first derivative of the orientation error
+        dZ % second derivative of the orientation error
+        dY % first derivative of the orientation error
         dx % pahse variable derivative
     end
 
@@ -82,17 +80,30 @@ classdef DMP_eo < handle
             Qg = Quat_data(:,end);
             
             for j=1:n_data
-               eo_data(:,j) = quatLog( quatProd(Qg, quatInv(Q) ) );
-               deo_data(:,j) = this.rotVel2deo(rotVel_data(:,j), Quat_data(:,j), Qg);
+               Q = Quat_data(:,j);
+               Qe = quatProd(Qg, quatInv(Q) );
+               eo_data(:,j) = quatLog(Qe);
+               deo_data(:,j) = this.rotVel2deo(rotVel_data(:,j), Qe);
+               ddeo_data(:,j) = this.rotAccel2ddeo(rotAccel_data(:,j), rotVel_data(:,j), Qe);
             end
+            
             
             Ts = Time(end) - Time(end-1);
             dTime = [diff(Time) Ts];
             for i=1:3
+%                 deo_data2(i,:) = [diff(eo_data(i,:)) 0] ./ dTime;
                 ddeo_data(i,:) = [diff(deo_data(i,:)) 0] ./ dTime;
             end
             
-                
+%             deo_diff = abs(deo_data-deo_data2);
+%             figure;
+%             plot(deo_diff');
+% 
+%             ddeo_diff = abs(ddeo_data-ddeo_data2);
+%             figure;
+%             plot(Time, ddeo_data(1,:), Time, ddeo_data2(1,:));
+%             error('stop')
+
             if (nargout > 0)
                 train_err = zeros(3,1);
                 for i=1:3
@@ -112,21 +123,20 @@ classdef DMP_eo < handle
         %  @param[in] Y: 'y' state of the DMP.
         %  @param[in] Z: 'z' state of the DMP.
         %  @param[in] Y0: Initial position.
-        %  @param[in] Yg: Goal position.
         %  @param[in] Y_c: Coupling term for the deonamical equation of the 'y' state.
         %  @param[in] Z_c: Coupling term for the deonamical equation of the 'z' state.
-        function calcStatesDot(this, x, Y, Z, Y0, Yg, Y_c, Z_c)
+        function calcStatesDot(this, x, Y, Z, Y0, Y_c, Z_c)
             
-            if (nargin < 7), Y_c=zeros(3,1); end
-            if (nargin < 8), Z_c=zeros(3,1); end
+            if (nargin < 6), Y_c=zeros(3,1); end
+            if (nargin < 7), Z_c=zeros(3,1); end
             
-            for i=1:3, this.dmp{i}.calcStatesDot(x, Y(i), Z(i), Y0(i), Yg(i), Y_c(i), Z_c(i)); end
+            for i=1:3, this.dmp{i}.calcStatesDot(x, Y(i), Z(i), Y0(i), 0, Y_c(i), Z_c(i)); end
             
-            this.ddeo = zeros(3,1);
-            this.deo = zeros(3,1);
+            this.dY = zeros(3,1);
+            this.dZ = zeros(3,1);
             for i=1:3
-                this.deo(i) = this.dmp{i}.getdeo();
-                this.ddeo(i) = this.dmp{i}.getddeo();    
+                this.dY(i) = this.dmp{i}.getDy();
+                this.dZ(i) = this.dmp{i}.getDz();    
             end
             this.dx = this.phaseDot(x);
 
@@ -195,90 +205,126 @@ classdef DMP_eo < handle
         end
         
         function dx = getDx(this), dx=this.dx; end
-        function deo = getdeo(this), deo=this.deo; end
-        function ddeo = getddeo(this), ddeo=this.ddeo; end
+        function dy = getDy(this), dy=this.dY; end
+        function dz = getDz(this), dz=this.dZ; end
         
     end
     
     methods (Static)
         
-        %% Given the a quaternion, its derivative and a target quaternion, returns
+        %% Given a quaternion, its derivative and a target quaternion, returns
         %% the derivative of the orientation error w.r.t the target quaternion.
         %  @param[in] dQ: The quaternion derivative.
         %  @param[in] Q: The quaternion.
         %  @param[in] Qg: The target quaternion.
         %  @return: The derivative of the orientation error.
         %
-        function deo = dquat2deo(dQ, Q, Qg)
+        function deo = dquat2deo(dQ, Qe)
             
-            invQ = quatInv(Q);
-            Q_delta = quatProd(Qg, invQ);
             rotVel = 2 * quatProd(dQ, invQ);
-            J_deo_dQ = dquat2deoJacob(Q_delta);
-            deo = -0.5*J_deo_dQ * quatProd(Q_delta, rotVel);
+            J_deo_dQ = jacobDeoDquat(Qe);
+            deo = -0.5*J_deo_dQ * quatProd(Qe, rotVel);
 
         end
         
         
-        %% Given the a quaternion, its rotational velocity and a target quaternion, returns
+        %% Given a quaternion, its rotational velocity and a target quaternion, returns
         %% the derivative of the orientation error w.r.t the target quaternion.
         %  @param[in] rotVel: The quaternion's rotational velocity.
         %  @param[in] Q: The quaternion.
         %  @param[in] Qg: The target quaternion.
         %  @return: The derivative of the orientation error.
         %
-        function deo = rotVel2deo(rotVel, Q, Qg)
+        function deo = rotVel2deo(rotVel, Qe)
             
-            invQ = quatInv(Q);
-            Q_delta = quatProd(Qg, invQ);
-            J_deo_dQ = dquat2deoJacob(Q_delta);
-            deo = -0.5*J_deo_dQ * quatProd(Q_delta, [0; rotVel]);
+            J_deo_dQ = DMP_eo.jacobDeoDquat(Qe);
+            deo = -0.5*J_deo_dQ * quatProd(Qe, [0; rotVel]);
 
         end
         
         
+        %% Given a quaternion, its rotational velocity and acceleration and a target quaternion,
+        %% returns the second derivative of the orientation error w.r.t the target quaternion.
+        %  @param[in] rotAccel: The quaternion's rotational acceleration.
+        %  @param[in] rotVel: The quaternion's rotational velocity.
+        %  @param[in] Q: The quaternion.
+        %  @param[in] Qg: The target quaternion.
+        %  @return: The second derivative of the orientation error.
+        %
+        function ddeo = rotAccel2ddeo(rotAccel, rotVel, Qe)
+            
+            J_deo_dQ = DMP_eo.jacobDeoDquat(Qe);
+            dJ_deo_dQ = DMP_eo.jacobDotDeoDquat(Qe, rotVel);
+            
+            rotVelQ = [0; rotVel];
+            rotAccelQ = [0; rotAccel];
+            
+            ddeo = 0.5 * (dJ_deo_dQ * quatProd(Qe, rotVelQ) - J_deo_dQ * quatProd( Qe, rotAccelQ-0.5*quatProd(rotVelQ,rotVelQ) ) );
+
+        end
+        
+        %% Given a quaternion, its rotational velocity and acceleration and a target quaternion,
+        %% returns the second derivative of the orientation error w.r.t the target quaternion.
+        %  @param[in] rotAccel: The quaternion's rotational acceleration.
+        %  @param[in] rotVel: The quaternion's rotational velocity.
+        %  @param[in] Q: The quaternion.
+        %  @param[in] Qg: The target quaternion.
+        %  @return: The second derivative of the orientation error.
+        %
+        function rotAccel = ddeo2rotAccel(ddeo, rotVel, Qe)
+            
+            deo = DMP_eo.rotVel2deo(rotVel, Qe);
+            invQe = quatInv(Qe);
+            J_dQ_deo = DMP_eo.jacobDquatDeo(Qe);
+            dJ_dQ_deo = DMP_eo.jacobDotDquatDeo(Qe, rotVel);
+            
+            rotVelQ = [0; rotVel];
+            
+            rotAccel = -quatProd(quatProd(rotVelQ, invQe), J_dQ_deo*deo) - 2*quatProd(invQe, dJ_dQ_deo*deo) - 2*quatProd(Qe, J_dQ_deo*ddeo);
+            rotAccel = rotAccel(2:4);
+            
+        end
+        
+        
+        %% Given a quaternion, a target quaternion and the quaternion error velocity w.r.t the
+        %% target, returns the derivative of the orientation error w.r.t the target quaternion.
+        %  @param[in] deo: Quaternion error velocity.
+        %  @param[in] Q: The quaternion.
+        %  @param[in] Qg: The target quaternion.
+        %  @return: The rotational velocity of the quaternion.
+        %
+        function rotVel = deo2rotVel(deo, Qe)
+            
+            J_dQ_deo = DMP_eo.jacobDquatDeo(Qe);
+            rotVel = -2 * quatProd( quatInv(Qe), J_dQ_deo*deo );
+            rotVel = rotVel(2:4);
+            
+        end
+         
         
         %% Returns the Jacobian from the derivative of orientation error to the quaternion derivative.
         %  @param[in] Q: The quaternion for which we want to calculate the Jacobian.
         %  @return: Jacobian from derivative of orientation error to quaternion derivative.
         %
-        function J_dQ_deo = deo2dquatJacob(Q)
+        function J_dQ_deo = jacobDquatDeo(Qe)
 
-            zero_tol = 1e-16;
-            w = Q(1);
-            v = Q(2:4);
+            if (abs(Qe(1)-1) <= 1e-10)
+                J_dQ_deo = [zeros(1, 3); eye(3,3)];
+                return;
+            end
+
+            w = Qe(1);
+            v = Qe(2:4);
             norm_v = norm(v);
-            eta = v / (norm_v + zero_tol);
-            theta = 2*atan2(norm_v, w);
+            eta = v / norm_v;
+            theta = atan2(norm_v, w);
             Eta = eta*eta';
-            sin_theta_2 = sin(theta/2);
+            s_th = sin(theta);
+            c_th = cos(theta);
             
             J_dQ_deo = zeros(4,3);
-            J_dQ_deo(1,:) = -0.5 * sin_theta_2 * eta';
-            J_dQ_deo(2:4,:) = (eye(3,3) - Eta)*sin_theta_2/(theta + zero_tol) + 0.5*cos(theta/2)*Eta;
-
-        end
-        
-        
-        %% Returns the time derivative of the Jacobian from the derivative of orientation error to the quaternion derivative.
-        %  @param[in] Q: The quaternion for which we want to calculate the Jacobian.
-        %  @param[in] deo: The derivative of the orientation error.
-        %  @return: The derivative of the Jacobian from derivative of orientation error to quaternion derivative.
-        %
-        function dJ_dQ_deo = deo2dquatJacobDot(Q, deo)
-
-            zero_tol = 1e-16;
-            w = Q(1);
-            v = Q(2:4);
-            norm_v = norm(v);
-            eta = v / (norm_v + zero_tol);
-            theta = 2*atan2(norm_v, w);
-            Eta = eta*eta';
-            sin_theta_2 = sin(theta/2);
-            
-            dJ_dQ_deo = zeros(4,3);
-            dJ_dQ_deo(1,:) = -0.5 * sin_theta_2 * eta';
-            dJ_dQ_deo(2:4,:) = (eye(3,3) - Eta)*sin_theta_2/(theta + zero_tol) + 0.5*cos(theta/2)*Eta;
+            J_dQ_deo(1,:) = -0.5 * s_th * eta';
+            J_dQ_deo(2:4,:) = 0.5 * ( (eye(3,3) - Eta)*s_th/theta + c_th*Eta );
 
         end
         
@@ -286,19 +332,100 @@ classdef DMP_eo < handle
         %  @param[in] Q: The quaternion for which we want to calculate the Jacobian.
         %  @return: Jacobian from quaternion derivative to derivative of orientation error.
         %
-        function J_deo_dQ = dquat2deoJacob(Q)
-
-            zero_tol = 1e-16;
-            w = Q(1);
-            v = Q(2:4);
+        function J_deo_dQ = jacobDeoDquat(Qe)
+            
+            if (abs(Qe(1)-1) <= 1e-10)
+                J_deo_dQ = [zeros(3,1) eye(3,3)];
+                return;
+            end
+            
+            w = Qe(1);
+            v = Qe(2:4);
             norm_v = norm(v);
-            eta = v / (norm_v + zero_tol);
-            theta = 2*atan2(norm_v, w);
-            sin_theta_2 = sin(theta/2);
+            eta = v / norm_v;
+            theta = atan2(norm_v, w);
+            s_th = sin(theta);
+            c_th = cos(theta);
             
             J_deo_dQ = zeros(3,4);
-            J_deo_dQ(:,1) = eta*(theta*cos(theta/2) - 2*sin_theta_2)/(sin_theta_2^2 + zero_tol);
-            J_deo_dQ(:,2:4) = eye(3,3)*theta/sin_theta_2;
+            J_deo_dQ(:,1) = 2*eta*(theta*c_th - s_th)/s_th^2;
+            J_deo_dQ(:,2:4) = 2*eye(3,3)*theta/s_th;
+
+        end
+       
+        %% Returns the time derivative of the Jacobian from the derivative of orientation error to the quaternion derivative.
+        %  @param[in] Q: The quaternion for which we want to calculate the Jacobian.
+        %  @param[in] deo: The derivative of the orientation error.
+        %  @return: The derivative of the Jacobian from derivative of orientation error to quaternion derivative.
+        %
+        function dJ_deo_dQ = jacobDotDeoDquat(Qe, vRot)
+
+            zero_tol = 1e-10;
+            
+            w = Qe(1);
+            v = Qe(2:4);
+            norm_v = norm(v);
+            eta = v / (norm_v + zero_tol);
+            th = atan2(norm_v, w); % it's the theta/2
+            
+            if (th < 1e-16), th = 1e-16; end
+            
+            Eta = eta*eta';
+            s_th = sin(th);
+            c_th = cos(th);
+            temp = (th*c_th-s_th)/s_th^2;
+            
+            deo = DMP_eo.deo2rotVel(vRot, Qe);
+            
+            dJ_deo_dQ = zeros(3,4);
+            dJ_deo_dQ(:,1) = 0.5*((-th/s_th - 2*c_th*temp/s_th)*Eta + temp*(eye(3,3)-Eta))*deo;
+            dJ_deo_dQ(:,2:4) = -0.5*temp*eta'*deo*eye(3,3);
+            dJ_deo_dQ = 2 *dJ_deo_dQ;
+
+        end
+        
+        %% Returns the time derivative of the Jacobian from the derivative of orientation error to the quaternion derivative.
+        %  @param[in] Q: The quaternion for which we want to calculate the Jacobian.
+        %  @param[in] deo: The derivative of the orientation error.
+        %  @return: The derivative of the Jacobian from derivative of orientation error to quaternion derivative.
+        %
+        function dJ_dQ_deo = jacobDotDquatDeo(Qe, vRot)
+
+            zero_tol = 1e-10;
+            
+            w = Qe(1);
+            v = Qe(2:4);
+            norm_v = norm(v);
+            eta = v / (norm_v + zero_tol);
+            th = atan2(norm_v, w);
+            Eta = eta*eta';
+            I_eta = eye(3,3) - Eta;
+            s_th = sin(th);
+            c_th = cos(th);
+            
+            deo = DMP_eo.deo2rotVel(vRot, Qe);
+            
+            dJ_dQ_deo = zeros(4,3);
+            dJ_dQ_deo(1,:) = -0.25 * deo' * (c_th*Eta + (s_th/th)*I_eta);
+            dJ_dQ_deo(2:4,:) = 0.25*(eta'*deo)*( ((th*c_th-s_th)/th^2)*I_eta - s_th*Eta ) + 0.25*((c_th-s_th/th)/th)*( (eta*deo')*I_eta + I_eta*(deo*eta') );
+            
+            
+            dJ_dQ_deo
+            dJ_dQ_deo2 = DMP_eo.getJacobianAcceleration( 0.5*quatLog(Qe), 0.5*deo)
+            
+            pause
+        end
+        
+        function J = getJacobianAcceleration( logQ, dLogQ)
+
+            theta = norm(logQ);
+            n = logQ / theta;
+
+            J1 = -dLogQ' * (cos(theta) * n * n' + (eye(3) - n * n') * sin(theta) / theta);
+            scalarJ2 = (1 / theta) * (cos(theta) - sin(theta) / theta);
+            J2 = ((eye(3) - n * n') * dLogQ * n' + n * dLogQ' * (eye(3) - n * n'));
+
+            J = [J1; scalarJ2 * J2];
 
         end
         

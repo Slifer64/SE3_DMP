@@ -43,6 +43,12 @@ while (true)
 
     %% Stopping criteria
     eo = quatLog( quatProd(Q, quatInv(Qg)) );
+    
+    if (t>1.5*t_end)
+        warning('Time limit reached... Stopping simulation!');
+        break;
+    end
+    
     if (t>=t_end && norm(eo)<0.02) % && norm(y-g)<5e-3 && norm(dy)<5e-3)
         break;
     end
